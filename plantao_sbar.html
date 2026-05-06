@@ -613,6 +613,9 @@ textarea.field-input { resize: vertical; min-height: 72px; }
 <header class="site-header">
   <h1>🏥 Passagem de Plantão — SBAR</h1>
   <p>Situation · Background · Assessment · Recommendation</p>
+  <div style="margin-top:10px">
+    <button onclick="clearData()" style="background:rgba(255,255,255,.15);border:1px solid rgba(255,255,255,.3);color:#fff;padding:6px 16px;border-radius:8px;font-size:.8rem;cursor:pointer;font-family:inherit">🗑️ Limpar e Nova Passagem</button>
+  </div>
 </header>
 
 <div class="stepper-wrap">
@@ -1251,7 +1254,7 @@ textarea.field-input { resize: vertical; min-height: 72px; }
 <script>
 // ── EMAILJS CONFIG ─────────────────────────────────────
 // Para ativar: crie conta em emailjs.com, substitua os valores abaixo
-const EMAILJS_SERVICE_ID  = 'serviço_wyr970t';
+const EMAILJS_SERVICE_ID  = 'servico_wyr970t';
 const EMAILJS_TEMPLATE_ID = 'template_94ew7yt';
 const EMAILJS_PUBLIC_KEY  = '4Qc98Va-9yln2tnmS';
 
@@ -1777,20 +1780,28 @@ function sendEmail() {
   btnEnviar.textContent = '⏳ Enviando...';
   btnEnviar.disabled = true;
 
+  const htmlContent = buildHtmlEmail();
+
   emailjs.send(EMAILJS_SERVICE_ID, EMAILJS_TEMPLATE_ID, {
     to_email:     email,
-    subject:      `Passagem de Plantão SBAR — ${paciente} — ${dataF}`,
-    html_message: buildHtmlEmail(),
+    subject:      'Passagem de Plantão SBAR — ' + paciente + ' — ' + dataF,
+    html_message: htmlContent,
+    from_name:    'Plantão SBAR',
+    reply_to:     email,
   }).then(() => {
     closeModal();
     btnEnviar.textContent = '✅ Confirmar e Enviar';
     btnEnviar.disabled = false;
-    showToast('✅ E-mail enviado com sucesso para ' + email, 'success');
+    showToast('✅ E-mail enviado com sucesso!', 'success');
   }).catch(err => {
-    console.error(err);
+    console.error('EmailJS error:', JSON.stringify(err));
     btnEnviar.textContent = '✅ Confirmar e Enviar';
     btnEnviar.disabled = false;
-    showToast('❌ Erro ao enviar. Tente novamente.', 'error');
+    // Fallback: abre cliente de email
+    const subject = encodeURIComponent('Passagem de Plantão SBAR — ' + paciente + ' — ' + dataF);
+    const body = encodeURIComponent(buildSummary());
+    window.open('mailto:' + email + '?subject=' + subject + '&body=' + body);
+    showToast('⚠️ Abrindo cliente de e-mail como alternativa...', 'error');
   });
 }
 
@@ -1805,6 +1816,48 @@ function showToast(msg, type='success') {
   setTimeout(() => t.classList.remove('show'), 3500);
 }
 
+// ── PERSISTÊNCIA DE DADOS (localStorage) ──────────────
+function saveData() {
+  const data = {};
+  document.querySelectorAll('input[type=text],input[type=number],input[type=date],input[type=time],input[type=email],textarea').forEach(el => {
+    if (el.id) data[el.id] = el.value;
+  });
+  document.querySelectorAll('input[type=radio]:checked, input[type=checkbox]:checked').forEach(el => {
+    data['_check_' + el.name + '_' + el.value] = true;
+  });
+  if (dorValue !== null) data['_dor'] = dorValue;
+  if (avpuValue) data['_avpu'] = avpuValue;
+  try { localStorage.setItem('sbar_data', JSON.stringify(data)); } catch(e) {}
+}
+
+function loadData() {
+  try {
+    const data = JSON.parse(localStorage.getItem('sbar_data') || '{}');
+    Object.keys(data).forEach(key => {
+      if (key.startsWith('_check_')) {
+        const parts = key.replace('_check_','').split('_');
+        const name = parts[0];
+        const value = parts.slice(1).join('_');
+        const el = document.querySelector('input[name=+name+][value=+value+]');
+        if (el) el.checked = true;
+      } else if (key === '_dor') {
+        selectDor(data[key]);
+      } else if (key === '_avpu') {
+        const card = document.querySelector('.avpu-card[data-val=+data[key]+]');
+        if (card) selectAVPU(card);
+      } else {
+        const el = document.getElementById(key);
+        if (el) el.value = data[key];
+      }
+    });
+    calcGlasgow(); calcBraden(); calcMorse(); calcBH();
+  } catch(e) {}
+}
+
+// Auto-salva a cada mudança
+document.addEventListener('change', saveData);
+document.addEventListener('input', saveData);
+
 // ── INIT ───────────────────────────────────────────────
 buildBraden();
 buildMorse();
@@ -1815,10 +1868,21 @@ const now = new Date();
 document.getElementById('s_data').value = now.toISOString().split('T')[0];
 document.getElementById('s_hora').value = now.toTimeString().slice(0,5);
 
+// Carrega dados salvos
+loadData();
+
 // Fechar modal ao clicar fora
 document.getElementById('modalOverlay').addEventListener('click', function(e) {
   if (e.target === this) closeModal();
 });
+
+// Botão limpar dados
+function clearData() {
+  if (confirm('Deseja limpar todos os dados e iniciar nova passagem?')) {
+    try { localStorage.removeItem('sbar_data'); } catch(e) {}
+    location.reload();
+  }
+}
 </script>
 </body>
 </html>
