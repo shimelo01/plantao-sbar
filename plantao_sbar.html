@@ -1,1922 +1,340 @@
 <!DOCTYPE html>
 <html lang="pt-BR">
 <head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Passagem de Plantão — SBAR</title>
-<link href="https://fonts.googleapis.com/css2?family=DM+Sans:ital,wght@0,300;0,400;0,500;0,600;0,700;1,400&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet">
-<script src="https://cdn.jsdelivr.net/npm/@emailjs/browser@4/dist/email.min.js"></script>
-<style>
-:root {
-  --azul:    #1A3A5C;
-  --azul-m:  #2E6DA4;
-  --azul-cl: #D6E4F0;
-  --verde:   #1B6B3A;
-  --verde-cl:#D4EDDA;
-  --amar:    #7B5C00;
-  --amar-cl: #FFF3CD;
-  --verm:    #721C24;
-  --verm-cl: #F8D7DA;
-  --roxo:    #4B0082;
-  --roxo-cl: #F0E8FF;
-  --laran:   #8B3A00;
-  --laran-cl:#FFE5CC;
-  --bg:      #F0F4F8;
-  --card:    #FFFFFF;
-  --text:    #1A1A2E;
-  --muted:   #6B7280;
-  --border:  #E2E8F0;
-  --radius:  12px;
-  --shadow:  0 4px 24px rgba(26,58,92,.10);
-}
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Passagem de Plantão - SBAR</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
 
-*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            padding: 20px;
+        }
 
-body {
-  font-family: 'DM Sans', sans-serif;
-  background: var(--bg);
-  color: var(--text);
-  min-height: 100vh;
-}
+        .container {
+            max-width: 800px;
+            margin: 0 auto;
+            background: white;
+            border-radius: 15px;
+            box-shadow: 0 10px 40px rgba(0,0,0,0.2);
+            padding: 30px;
+        }
 
-/* ── HEADER ── */
-.site-header {
-  background: linear-gradient(135deg, var(--azul) 0%, #2a5298 60%, var(--azul-m) 100%);
-  padding: 28px 24px 24px;
-  text-align: center;
-  position: relative;
-  overflow: hidden;
-}
-.site-header::before {
-  content: '';
-  position: absolute; inset: 0;
-  background: url("data:image/svg+xml,%3Csvg width='60' height='60' viewBox='0 0 60 60' xmlns='http://www.w3.org/2000/svg'%3E%3Cg fill='none' fill-rule='evenodd'%3E%3Cg fill='%23ffffff' fill-opacity='0.04'%3E%3Cpath d='M36 34v-4h-2v4h-4v2h4v4h2v-4h4v-2h-4zm0-30V0h-2v4h-4v2h4v4h2V6h4V4h-4zM6 34v-4H4v4H0v2h4v4h2v-4h4v-2H6zM6 4V0H4v4H0v2h4v4h2V6h4V4H6z'/%3E%3C/g%3E%3C/g%3E%3C/svg%3E");
-}
-.site-header h1 {
-  font-size: clamp(1.3rem, 4vw, 1.9rem);
-  font-weight: 700;
-  color: #fff;
-  letter-spacing: -.5px;
-  position: relative;
-}
-.site-header p {
-  font-size: .85rem;
-  color: rgba(255,255,255,.65);
-  margin-top: 4px;
-  font-style: italic;
-  position: relative;
-}
+        h1 {
+            color: #333;
+            text-align: center;
+            margin-bottom: 30px;
+            font-size: 2em;
+        }
 
-/* ── STEPPER ── */
-.stepper-wrap {
-  max-width: 860px;
-  margin: 0 auto;
-  padding: 28px 16px 60px;
-}
+        .section {
+            margin-bottom: 25px;
+            padding: 20px;
+            background: #f8f9fa;
+            border-radius: 10px;
+            border-left: 4px solid #667eea;
+        }
 
-.progress-bar-outer {
-  background: var(--border);
-  border-radius: 99px;
-  height: 6px;
-  margin-bottom: 28px;
-  overflow: hidden;
-}
-.progress-bar-inner {
-  height: 100%;
-  border-radius: 99px;
-  background: linear-gradient(90deg, var(--azul-m), var(--verde));
-  transition: width .5s cubic-bezier(.4,0,.2,1);
-}
+        .section-title {
+            color: #667eea;
+            font-size: 1.3em;
+            margin-bottom: 15px;
+            font-weight: 600;
+        }
 
-.step-tabs {
-  display: flex;
-  gap: 8px;
-  margin-bottom: 28px;
-  overflow-x: auto;
-  scrollbar-width: none;
-}
-.step-tabs::-webkit-scrollbar { display: none; }
+        .form-group {
+            margin-bottom: 15px;
+        }
 
-.step-tab {
-  flex: 1;
-  min-width: 70px;
-  padding: 10px 8px;
-  border-radius: var(--radius);
-  border: 2px solid var(--border);
-  background: var(--card);
-  cursor: pointer;
-  text-align: center;
-  transition: all .25s;
-  position: relative;
-}
-.step-tab .tab-letter {
-  display: block;
-  font-size: 1.4rem;
-  font-weight: 700;
-  line-height: 1;
-}
-.step-tab .tab-name {
-  display: block;
-  font-size: .65rem;
-  font-weight: 600;
-  letter-spacing: .5px;
-  text-transform: uppercase;
-  margin-top: 3px;
-  color: var(--muted);
-}
-.step-tab.active { border-width: 2px; }
-.step-tab.done::after {
-  content: '✓';
-  position: absolute;
-  top: 6px; right: 8px;
-  font-size: .7rem;
-  color: var(--verde);
-  font-weight: 700;
-}
+        label {
+            display: block;
+            margin-bottom: 5px;
+            color: #555;
+            font-weight: 500;
+        }
 
-/* step colors */
-.step-tab[data-step="0"].active { border-color: var(--azul-m); background: var(--azul-cl); }
-.step-tab[data-step="0"].active .tab-letter { color: var(--azul); }
-.step-tab[data-step="1"].active { border-color: var(--verde); background: var(--verde-cl); }
-.step-tab[data-step="1"].active .tab-letter { color: var(--verde); }
-.step-tab[data-step="2"].active { border-color: var(--amar); background: var(--amar-cl); }
-.step-tab[data-step="2"].active .tab-letter { color: var(--amar); }
-.step-tab[data-step="3"].active { border-color: var(--verm); background: var(--verm-cl); }
-.step-tab[data-step="3"].active .tab-letter { color: var(--verm); }
+        input, textarea, select {
+            width: 100%;
+            padding: 12px;
+            border: 2px solid #e0e0e0;
+            border-radius: 8px;
+            font-size: 14px;
+            transition: border-color 0.3s;
+        }
 
-/* ── CARD SEÇÃO ── */
-.section-card {
-  background: var(--card);
-  border-radius: 16px;
-  box-shadow: var(--shadow);
-  overflow: hidden;
-  display: none;
-  animation: fadeUp .35s ease;
-}
-.section-card.active { display: block; }
+        input:focus, textarea:focus, select:focus {
+            outline: none;
+            border-color: #667eea;
+        }
 
-@keyframes fadeUp {
-  from { opacity: 0; transform: translateY(16px); }
-  to   { opacity: 1; transform: translateY(0); }
-}
+        textarea {
+            min-height: 100px;
+            resize: vertical;
+        }
 
-.section-header {
-  padding: 20px 24px;
-  display: flex;
-  align-items: center;
-  gap: 14px;
-}
-.section-letter {
-  width: 52px; height: 52px;
-  border-radius: 12px;
-  display: flex; align-items: center; justify-content: center;
-  font-size: 1.8rem; font-weight: 700;
-  color: #fff;
-  flex-shrink: 0;
-}
-.section-header-text h2 { font-size: 1.15rem; font-weight: 700; }
-.section-header-text p  { font-size: .82rem; opacity: .75; margin-top: 2px; }
+        .avpu-container {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+            gap: 10px;
+            margin-top: 10px;
+        }
 
-/* step header colors */
-.step-0 .section-header { background: linear-gradient(135deg, var(--azul-cl), #EBF3FB); }
-.step-0 .section-letter { background: var(--azul-m); }
-.step-0 .section-header-text h2 { color: var(--azul); }
-.step-1 .section-header { background: linear-gradient(135deg, var(--verde-cl), #F0FAF3); }
-.step-1 .section-letter { background: var(--verde); }
-.step-1 .section-header-text h2 { color: var(--verde); }
-.step-2 .section-header { background: linear-gradient(135deg, var(--amar-cl), #FFFBF0); }
-.step-2 .section-letter { background: var(--amar); }
-.step-2 .section-header-text h2 { color: var(--amar); }
-.step-3 .section-header { background: linear-gradient(135deg, var(--verm-cl), #FFF5F5); }
-.step-3 .section-letter { background: var(--verm); }
-.step-3 .section-header-text h2 { color: var(--verm); }
+        .avpu-card {
+            background: white;
+            border: 2px solid #e0e0e0;
+            border-radius: 8px;
+            padding: 15px;
+            text-align: center;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
 
-/* ── FORM BODY ── */
-.form-body { padding: 20px 24px 28px; }
+        .avpu-card:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+        }
 
-.form-grid { display: grid; gap: 14px; }
-.grid-2 { grid-template-columns: 1fr 1fr; }
-.grid-3 { grid-template-columns: 1fr 1fr 1fr; }
-@media(max-width:600px) { .grid-2,.grid-3 { grid-template-columns: 1fr; } }
+        .avpu-card.selected {
+            background: #667eea;
+            color: white;
+            border-color: #667eea;
+        }
 
-.field-group { display: flex; flex-direction: column; gap: 5px; }
-.field-label {
-  font-size: .75rem;
-  font-weight: 600;
-  text-transform: uppercase;
-  letter-spacing: .5px;
-  color: var(--muted);
-}
-.field-input {
-  border: 1.5px solid var(--border);
-  border-radius: 8px;
-  padding: 9px 12px;
-  font-family: inherit;
-  font-size: .9rem;
-  background: #FAFBFC;
-  color: var(--text);
-  transition: border-color .2s, box-shadow .2s;
-  width: 100%;
-}
-.field-input:focus {
-  outline: none;
-  border-color: var(--azul-m);
-  box-shadow: 0 0 0 3px rgba(46,109,164,.12);
-  background: #fff;
-}
-textarea.field-input { resize: vertical; min-height: 72px; }
+        .avpu-title {
+            font-weight: 600;
+            font-size: 1.1em;
+            margin-bottom: 5px;
+        }
 
-/* ── SUBSECTION ── */
-.subsection {
-  margin-top: 20px;
-  border: 1.5px solid var(--border);
-  border-radius: var(--radius);
-  overflow: hidden;
-}
-.subsection-title {
-  padding: 10px 16px;
-  font-size: .78rem;
-  font-weight: 700;
-  text-transform: uppercase;
-  letter-spacing: .6px;
-  display: flex;
-  align-items: center;
-  gap: 8px;
-}
-.subsection-body { padding: 16px; }
+        .avpu-desc {
+            font-size: 0.85em;
+            opacity: 0.8;
+        }
 
-/* color variants */
-.sub-azul .subsection-title  { background: var(--azul-cl);  color: var(--azul); border-bottom: 1px solid #B8D4EC; }
-.sub-verde .subsection-title { background: var(--verde-cl); color: var(--verde); border-bottom: 1px solid #A8D5BA; }
-.sub-amar .subsection-title  { background: var(--amar-cl);  color: var(--amar); border-bottom: 1px solid #F0D060; }
-.sub-verm .subsection-title  { background: var(--verm-cl);  color: var(--verm); border-bottom: 1px solid #F0A0A8; }
-.sub-roxo .subsection-title  { background: var(--roxo-cl);  color: var(--roxo); border-bottom: 1px solid #C8A8F0; }
-.sub-laran .subsection-title { background: var(--laran-cl); color: var(--laran); border-bottom: 1px solid #F0C090; }
+        .button-group {
+            display: flex;
+            gap: 15px;
+            margin-top: 30px;
+        }
 
-/* ── CHECKGROUP ── */
-.check-group {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 8px;
-}
-.check-item {
-  display: flex;
-  align-items: center;
-  gap: 6px;
-  padding: 7px 12px;
-  border-radius: 8px;
-  border: 1.5px solid var(--border);
-  cursor: pointer;
-  transition: all .18s;
-  font-size: .85rem;
-  background: #FAFBFC;
-  user-select: none;
-}
-.check-item input { display: none; }
-.check-item .box {
-  width: 16px; height: 16px;
-  border-radius: 4px;
-  border: 2px solid #CBD5E1;
-  display: flex; align-items: center; justify-content: center;
-  transition: all .18s;
-  flex-shrink: 0;
-}
-.check-item input:checked + .box {
-  border-color: currentColor;
-  background: currentColor;
-}
-.check-item input:checked + .box::after {
-  content: '';
-  width: 8px; height: 5px;
-  border-left: 2px solid #fff;
-  border-bottom: 2px solid #fff;
-  transform: rotate(-45deg) translateY(-1px);
-  display: block;
-}
-/* check colors */
-.check-azul .check-item:has(input:checked) { border-color: var(--azul-m); background: var(--azul-cl); color: var(--azul); }
-.check-azul .check-item { color: var(--azul); }
-.check-verde .check-item:has(input:checked) { border-color: var(--verde); background: var(--verde-cl); color: var(--verde); }
-.check-verde .check-item { color: var(--verde); }
-.check-amar .check-item:has(input:checked) { border-color: var(--amar); background: var(--amar-cl); color: var(--amar); }
-.check-amar .check-item { color: var(--amar); }
-.check-verm .check-item:has(input:checked) { border-color: var(--verm); background: var(--verm-cl); color: var(--verm); }
-.check-verm .check-item { color: var(--verm); }
-.check-roxo .check-item:has(input:checked) { border-color: var(--roxo); background: var(--roxo-cl); color: var(--roxo); }
-.check-roxo .check-item { color: var(--roxo); }
-.check-laran .check-item:has(input:checked) { border-color: var(--laran); background: var(--laran-cl); color: var(--laran); }
-.check-laran .check-item { color: var(--laran); }
+        button {
+            flex: 1;
+            padding: 15px;
+            border: none;
+            border-radius: 8px;
+            font-size: 16px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
 
-/* ── RADIO GROUP (exclusivo) ── */
-.radio-group { display: flex; flex-wrap: wrap; gap: 8px; }
-.radio-item {
-  display: flex; align-items: center; gap: 6px;
-  padding: 7px 12px;
-  border-radius: 8px;
-  border: 1.5px solid var(--border);
-  cursor: pointer;
-  transition: all .18s;
-  font-size: .85rem;
-  background: #FAFBFC;
-  user-select: none;
-}
-.radio-item input { display: none; }
-.radio-item .dot {
-  width: 16px; height: 16px;
-  border-radius: 50%;
-  border: 2px solid #CBD5E1;
-  display: flex; align-items: center; justify-content: center;
-  flex-shrink: 0;
-  transition: all .18s;
-}
-.radio-item input:checked + .dot { border-color: currentColor; }
-.radio-item input:checked + .dot::after {
-  content: '';
-  width: 7px; height: 7px;
-  border-radius: 50%;
-  background: currentColor;
-  display: block;
-}
+        .btn-primary {
+            background: #667eea;
+            color: white;
+        }
 
-/* ── DOR SCALE ── */
-.dor-scale { display: flex; border-radius: 10px; overflow: hidden; gap: 2px; }
-.dor-btn {
-  flex: 1;
-  padding: 12px 4px;
-  text-align: center;
-  font-weight: 700;
-  font-size: 1rem;
-  cursor: pointer;
-  border: none;
-  border-radius: 6px;
-  transition: all .18s;
-  opacity: .65;
-  color: #fff;
-}
-.dor-btn:hover { opacity: .85; transform: translateY(-2px); }
-.dor-btn.selected { opacity: 1; transform: translateY(-3px); box-shadow: 0 4px 12px rgba(0,0,0,.25); }
-.dor-legend {
-  display: flex;
-  gap: 8px;
-  margin-top: 10px;
-  flex-wrap: wrap;
-}
-.dor-leg-item {
-  padding: 4px 10px;
-  border-radius: 20px;
-  font-size: .75rem;
-  font-weight: 600;
-}
+        .btn-primary:hover {
+            background: #5568d3;
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(102, 126, 234, 0.4);
+        }
 
-/* ── AVPU ── */
-.avpu-grid { display: grid; grid-template-columns: repeat(2,1fr); gap: 10px; }
-@media(min-width:600px) { .avpu-grid { grid-template-columns: repeat(4,1fr); } }
-.avpu-card {
-  border-radius: 10px;
-  border: 2px solid var(--border);
-  padding: 14px;
-  cursor: pointer;
-  transition: all .2s;
-  text-align: center;
-}
-.avpu-card .av-letter { font-size: 2rem; font-weight: 700; line-height: 1; }
-.avpu-card .av-name   { font-size: .8rem; font-weight: 700; margin-top: 2px; }
-.avpu-card .av-desc   { font-size: .72rem; color: var(--muted); margin-top: 4px; }
-.avpu-card.selected { border-width: 2px; }
+        .btn-secondary {
+            background: #6c757d;
+            color: white;
+        }
 
-/* ── GLASGOW / BRADEN / MORSE TABLE ── */
-.scale-table { width: 100%; border-collapse: separate; border-spacing: 0 4px; }
-.scale-table th {
-  padding: 8px 10px;
-  font-size: .72rem;
-  text-transform: uppercase;
-  letter-spacing: .5px;
-  font-weight: 700;
-  text-align: left;
-}
-.scale-table td { padding: 6px 10px; }
-.scale-row { background: #FAFBFC; border-radius: 8px; }
-.scale-row td:first-child { border-radius: 8px 0 0 8px; padding-left: 14px; font-size: .82rem; font-weight: 600; }
-.scale-row td:last-child  { border-radius: 0 8px 8px 0; }
+        .btn-secondary:hover {
+            background: #5a6268;
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(108, 117, 125, 0.4);
+        }
 
-.scale-total-box {
-  margin-top: 14px;
-  display: flex;
-  align-items: center;
-  gap: 12px;
-  flex-wrap: wrap;
-}
-.total-display {
-  padding: 10px 18px;
-  border-radius: 10px;
-  font-weight: 700;
-  font-size: 1.1rem;
-  min-width: 100px;
-  text-align: center;
-}
-.risk-badge {
-  padding: 6px 14px;
-  border-radius: 20px;
-  font-size: .8rem;
-  font-weight: 700;
-  animation: popIn .3s ease;
-}
-@keyframes popIn {
-  from { transform: scale(.8); opacity: 0; }
-  to   { transform: scale(1);  opacity: 1; }
-}
-
-/* ── SV TABLE ── */
-.sv-table { width: 100%; border-collapse: collapse; }
-.sv-table th, .sv-table td {
-  border: 1.5px solid var(--border);
-  padding: 8px 10px;
-  text-align: center;
-  font-size: .85rem;
-}
-.sv-table th { background: var(--amar-cl); color: var(--amar); font-weight: 700; font-size: .75rem; }
-.sv-table .sv-label { background: #F8F9FA; font-size: .7rem; color: var(--muted); font-style: italic; }
-.sv-table input { border: none; background: transparent; text-align: center; width: 100%; font-family: 'DM Mono', monospace; font-size: .9rem; }
-.sv-table input:focus { outline: none; }
-
-/* ── PENDÊNCIAS ── */
-.pend-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; }
-@media(max-width:500px) { .pend-grid { grid-template-columns: 1fr; } }
-.pend-item {
-  display: flex;
-  align-items: center;
-  gap: 8px;
-  padding: 10px 12px;
-  border-radius: 8px;
-  border: 1.5px solid var(--border);
-  background: #FAFBFC;
-  transition: all .18s;
-}
-.pend-item:has(input[type=checkbox]:checked) {
-  border-color: var(--verm);
-  background: var(--verm-cl);
-}
-.pend-item input[type=checkbox] { display: none; }
-.pend-box {
-  width: 18px; height: 18px;
-  border-radius: 4px;
-  border: 2px solid #CBD5E1;
-  display: flex; align-items: center; justify-content: center;
-  flex-shrink: 0;
-  cursor: pointer;
-  transition: all .18s;
-}
-.pend-item:has(input[type=checkbox]:checked) .pend-box {
-  background: var(--verm);
-  border-color: var(--verm);
-}
-.pend-item:has(input[type=checkbox]:checked) .pend-box::after {
-  content: '';
-  width: 9px; height: 6px;
-  border-left: 2px solid #fff;
-  border-bottom: 2px solid #fff;
-  transform: rotate(-45deg) translateY(-1px);
-  display: block;
-}
-.pend-label { flex: 1; font-size: .83rem; font-weight: 500; cursor: pointer; color: var(--text); }
-.pend-item:has(input[type=checkbox]:checked) .pend-label { color: var(--verm); font-weight: 600; }
-.pend-hora { width: 64px; font-size: .78rem; }
-
-/* ── ALERGIAS DESTAQUE ── */
-.alergia-box {
-  border: 2px solid var(--verm);
-  border-radius: var(--radius);
-  overflow: hidden;
-}
-.alergia-header {
-  background: var(--verm-cl);
-  padding: 10px 14px;
-  font-weight: 700;
-  font-size: .85rem;
-  color: var(--verm);
-  display: flex;
-  align-items: center;
-  gap: 6px;
-}
-.alergia-body { padding: 12px 14px; display: flex; flex-direction: column; gap: 10px; }
-
-/* ── NAVEGAÇÃO BOTÕES ── */
-.nav-btns {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  margin-top: 24px;
-  gap: 10px;
-}
-.btn {
-  padding: 11px 24px;
-  border-radius: 10px;
-  font-family: inherit;
-  font-weight: 600;
-  font-size: .9rem;
-  cursor: pointer;
-  border: none;
-  transition: all .2s;
-  display: flex; align-items: center; gap: 7px;
-}
-.btn-ghost { background: transparent; border: 1.5px solid var(--border); color: var(--muted); }
-.btn-ghost:hover { border-color: var(--azul-m); color: var(--azul); }
-.btn-primary { background: var(--azul-m); color: #fff; box-shadow: 0 4px 14px rgba(46,109,164,.3); }
-.btn-primary:hover { background: var(--azul); transform: translateY(-1px); }
-.btn-success { background: var(--verde); color: #fff; box-shadow: 0 4px 14px rgba(27,107,58,.3); }
-.btn-success:hover { filter: brightness(1.1); transform: translateY(-1px); }
-.btn-danger  { background: var(--verm); color: #fff; }
-.btn-danger:hover { filter: brightness(1.1); }
-.btn-print   { background: #475569; color: #fff; }
-.btn-print:hover { background: #334155; }
-
-/* ── STEP INDICATOR ── */
-.step-counter {
-  font-size: .78rem;
-  color: var(--muted);
-  font-weight: 500;
-}
-
-/* ── MODAL ENVIO ── */
-.modal-overlay {
-  display: none;
-  position: fixed; inset: 0;
-  background: rgba(0,0,0,.5);
-  z-index: 100;
-  align-items: center;
-  justify-content: center;
-  padding: 16px;
-}
-.modal-overlay.open { display: flex; animation: fadeIn .2s ease; }
-@keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
-.modal {
-  background: #fff;
-  border-radius: 18px;
-  padding: 32px 28px;
-  max-width: 460px;
-  width: 100%;
-  box-shadow: 0 20px 60px rgba(0,0,0,.2);
-  animation: slideUp .3s ease;
-}
-@keyframes slideUp { from { transform: translateY(30px); opacity: 0; } to { transform: none; opacity: 1; } }
-.modal h3 { font-size: 1.2rem; margin-bottom: 6px; }
-.modal p  { color: var(--muted); font-size: .88rem; margin-bottom: 20px; }
-.modal-btns { display: flex; gap: 10px; margin-top: 20px; flex-wrap: wrap; }
-
-/* ── SUMMARY (pré-envio) ── */
-.summary-preview {
-  background: #F8FAFC;
-  border: 1.5px solid var(--border);
-  border-radius: 10px;
-  padding: 16px;
-  font-size: .8rem;
-  font-family: 'DM Mono', monospace;
-  max-height: 220px;
-  overflow-y: auto;
-  white-space: pre-wrap;
-  line-height: 1.6;
-  color: var(--text);
-}
-
-/* ── TOAST ── */
-.toast {
-  position: fixed;
-  bottom: 24px; right: 24px;
-  padding: 14px 20px;
-  border-radius: 12px;
-  font-weight: 600;
-  font-size: .88rem;
-  color: #fff;
-  z-index: 200;
-  transform: translateY(80px);
-  opacity: 0;
-  transition: all .35s cubic-bezier(.4,0,.2,1);
-  display: flex; align-items: center; gap: 8px;
-  max-width: 320px;
-}
-.toast.show { transform: none; opacity: 1; }
-.toast.success { background: var(--verde); }
-.toast.error   { background: var(--verm); }
-
-/* ── PRINT ── */
-@media print {
-  body { background: #fff; }
-  .site-header, .step-tabs, .progress-bar-outer, .nav-btns, .modal-overlay, .toast, .step-counter, button { display: none !important; }
-  .section-card { display: block !important; box-shadow: none; border: 1px solid #ccc; margin-bottom: 24px; break-inside: avoid; page-break-inside: avoid; }
-  .stepper-wrap { padding: 0; max-width: 100%; }
-  .form-body { padding: 12px; }
-  .subsection { break-inside: avoid; page-break-inside: avoid; }
-  .field-input { border: none; border-bottom: 1px solid #ccc; border-radius: 0; background: transparent !important; padding: 2px 4px; }
-  .check-item, .radio-item, .avpu-card, .dor-btn { border: 1px solid #ccc !important; }
-  .check-item:has(input:checked), .radio-item:has(input:checked) { border: 2px solid #333 !important; font-weight: bold; }
-  .avpu-card.selected { border: 2px solid #333 !important; }
-  .dor-btn.selected { border: 2px solid #333 !important; font-weight: bold; }
-  .scale-total-box { display: flex !important; }
-  #glasgowTotal, #bradenTotal, #morseTotal { display: flex !important; }
-  #dorResult { display: block !important; }
-  .sv-table input { border-bottom: 1px solid #ccc; }
-  .section-header { -webkit-print-color-adjust: exact; print-color-adjust: exact; }
-  .subsection-title { -webkit-print-color-adjust: exact; print-color-adjust: exact; }
-  .dor-btn { -webkit-print-color-adjust: exact; print-color-adjust: exact; }
-  .risk-badge, .total-display { -webkit-print-color-adjust: exact; print-color-adjust: exact; }
-  .alergia-header { -webkit-print-color-adjust: exact; print-color-adjust: exact; }
-  .pend-item:has(input:checked) { -webkit-print-color-adjust: exact; print-color-adjust: exact; }
-}
-</style>
+        @media print {
+            body {
+                background: white;
+                padding: 0;
+            }
+            .container {
+                box-shadow: none;
+                padding: 20px;
+            }
+            button {
+                display: none;
+            }
+        }
+    </style>
 </head>
 <body>
+    <div class="container">
+        <h1>📋 Passagem de Plantão - SBAR</h1>
 
-<header class="site-header">
-  <h1>🏥 Passagem de Plantão — SBAR</h1>
-  <p>Situation · Background · Assessment · Recommendation</p>
-  <div style="margin-top:10px">
-    <button id="clearFormBtn" type="button" style="background:rgba(255,255,255,.15);border:1px solid rgba(255,255,255,.3);color:#fff;padding:6px 16px;border-radius:8px;font-size:.8rem;cursor:pointer;font-family:inherit">🗑️ Limpar e Nova Passagem</button>
-  </div>
-</header>
-
-<div class="stepper-wrap">
-
-  <!-- Barra de progresso -->
-  <div class="progress-bar-outer">
-    <div class="progress-bar-inner" id="progressBar" style="width:25%"></div>
-  </div>
-
-  <!-- Abas de navegação -->
-  <div class="step-tabs">
-    <div class="step-tab active" data-step="0" onclick="goToStep(0)">
-      <span class="tab-letter" style="color:var(--azul)">S</span>
-      <span class="tab-name">Situação</span>
-    </div>
-    <div class="step-tab" data-step="1" onclick="goToStep(1)">
-      <span class="tab-letter" style="color:var(--verde)">B</span>
-      <span class="tab-name">Background</span>
-    </div>
-    <div class="step-tab" data-step="2" onclick="goToStep(2)">
-      <span class="tab-letter" style="color:var(--amar)">A</span>
-      <span class="tab-name">Avaliação</span>
-    </div>
-    <div class="step-tab" data-step="3" onclick="goToStep(3)">
-      <span class="tab-letter" style="color:var(--verm)">R</span>
-      <span class="tab-name">Recomendação</span>
-    </div>
-  </div>
-
-  <!-- ════════════════ S — SITUAÇÃO ════════════════ -->
-  <div class="section-card step-0 active" id="step-0">
-    <div class="section-header">
-      <div class="section-letter">S</div>
-      <div class="section-header-text">
-        <h2>SITUAÇÃO</h2>
-        <p>Quem é o paciente, onde está e qual é o problema atual.</p>
-      </div>
-    </div>
-    <div class="form-body">
-      <div class="form-grid">
-
-        <div class="subsection sub-azul">
-          <div class="subsection-title">📋 Identificação do Turno</div>
-          <div class="subsection-body">
-            <div class="form-grid grid-2" style="margin-bottom:12px">
-              <div class="field-group">
-                <label class="field-label">Data</label>
-                <input type="date" id="s_data" class="field-input">
-              </div>
-              <div class="field-group">
-                <label class="field-label">Horário</label>
-                <input type="time" id="s_hora" class="field-input">
-              </div>
+        <div class="section">
+            <div class="section-title">S - Situação</div>
+            <div class="form-group">
+                <label>Nome do Paciente:</label>
+                <input type="text" id="nomePaciente" placeholder="Digite o nome completo">
             </div>
-            <div class="field-group" style="margin-bottom:12px">
-              <label class="field-label">Turno</label>
-              <div class="radio-group check-azul" id="s_turno">
-                <label class="radio-item"><input type="radio" name="turno" value="Manhã"><span class="dot"></span>Manhã</label>
-                <label class="radio-item"><input type="radio" name="turno" value="Tarde"><span class="dot"></span>Tarde</label>
-                <label class="radio-item"><input type="radio" name="turno" value="Noite"><span class="dot"></span>Noite</label>
-                <label class="radio-item"><input type="radio" name="turno" value="Intermediário"><span class="dot"></span>Intermediário</label>
-              </div>
+            <div class="form-group">
+                <label>Idade:</label>
+                <input type="number" id="idade" placeholder="Digite a idade">
             </div>
-            <div class="field-group">
-              <label class="field-label">Nº de Pacientes no Turno</label>
-              <input type="number" id="s_npac" class="field-input" min="1" max="30" placeholder="Ex: 8">
+            <div class="form-group">
+                <label>Leito:</label>
+                <input type="text" id="leito" placeholder="Ex: 101-A">
             </div>
-          </div>
-        </div>
-
-        <div class="subsection sub-azul">
-          <div class="subsection-title">🪪 Identificação do Paciente</div>
-          <div class="subsection-body">
-            <div class="form-grid grid-2" style="margin-bottom:12px">
-              <div class="field-group" style="grid-column:1/-1">
-                <label class="field-label">Nome do Paciente</label>
-                <input type="text" id="s_nome" class="field-input" placeholder="Nome completo">
-              </div>
-              <div class="field-group">
-                <label class="field-label">Prontuário nº</label>
-                <input type="text" id="s_prontuario" class="field-input" placeholder="Nº do prontuário">
-              </div>
-              <div class="field-group">
-                <label class="field-label">Leito / Setor</label>
-                <input type="text" id="s_leito" class="field-input" placeholder="Ex: 204-A / UTI">
-              </div>
-              <div class="field-group" style="grid-column:1/-1">
-                <label class="field-label">Médico Assistente</label>
-                <input type="text" id="s_medico" class="field-input" placeholder="Nome do médico">
-              </div>
-              <div class="field-group" style="grid-column:1/-1">
-                <label class="field-label">Convênio / SUS</label>
-                <input type="text" id="s_convenio" class="field-input" placeholder="Plano ou SUS">
-              </div>
+            <div class="form-group">
+                <label>Diagnóstico:</label>
+                <textarea id="diagnostico" placeholder="Descreva o diagnóstico principal"></textarea>
             </div>
-          </div>
         </div>
 
-        <div class="subsection sub-azul">
-          <div class="subsection-title">🔍 Problema Atual</div>
-          <div class="subsection-body">
-            <div class="form-grid" style="gap:10px">
-              <div class="field-group">
-                <label class="field-label">Diagnóstico Principal</label>
-                <input type="text" id="s_diag" class="field-input" placeholder="CID / diagnóstico">
-              </div>
-              <div class="field-group">
-                <label class="field-label">Motivo da Internação</label>
-                <input type="text" id="s_motivo" class="field-input" placeholder="Motivo da internação">
-              </div>
-              <div class="field-group">
-                <label class="field-label">Situação Atual</label>
-                <textarea id="s_situacao" class="field-input" placeholder="Descreva a situação atual do paciente..."></textarea>
-              </div>
+        <div class="section">
+            <div class="section-title">B - Background (Histórico)</div>
+            <div class="form-group">
+                <label>História Clínica Relevante:</label>
+                <textarea id="historiaClinica" placeholder="Comorbidades, cirurgias prévias, alergias..."></textarea>
             </div>
-          </div>
-        </div>
-
-        <div class="subsection sub-azul">
-          <div class="subsection-title">🦠 Isolamento</div>
-          <div class="subsection-body">
-            <div class="check-group check-azul" id="s_isolamento">
-              <label class="check-item"><input type="radio" name="isolamento" value="Não"><span class="box"></span>Não</label>
-              <label class="check-item"><input type="radio" name="isolamento" value="Contato"><span class="box"></span>Contato</label>
-              <label class="check-item"><input type="radio" name="isolamento" value="Respiratório"><span class="box"></span>Respiratório</label>
-              <label class="check-item"><input type="radio" name="isolamento" value="Reverso"><span class="box"></span>Reverso</label>
-              <label class="check-item"><input type="radio" name="isolamento" value="Aerossol"><span class="box"></span>Aerossol</label>
+            <div class="form-group">
+                <label>Medicações em Uso:</label>
+                <textarea id="medicacoes" placeholder="Liste as medicações atuais"></textarea>
             </div>
-          </div>
         </div>
 
-      </div>
-    </div>
-    <div class="nav-btns" style="padding:0 24px 24px">
-      <span class="step-counter">Etapa 1 de 4</span>
-      <button class="btn btn-primary" onclick="nextStep()">Avançar: Background →</button>
-    </div>
-  </div>
-
-  <!-- ════════════════ B — BACKGROUND ════════════════ -->
-  <div class="section-card step-1" id="step-1">
-    <div class="section-header">
-      <div class="section-letter">B</div>
-      <div class="section-header-text">
-        <h2>BACKGROUND</h2>
-        <p>Histórico, alergias, dispositivos e medicamentos.</p>
-      </div>
-    </div>
-    <div class="form-body">
-      <div class="form-grid">
-
-        <div class="form-grid grid-2">
-          <div class="field-group">
-            <label class="field-label">Data da Internação</label>
-            <input type="date" id="b_internacao" class="field-input">
-          </div>
-          <div class="field-group">
-            <label class="field-label">Cirurgia / Procedimento</label>
-            <input type="text" id="b_cirurgia" class="field-input" placeholder="Se houver">
-          </div>
-        </div>
-
-        <div class="field-group">
-          <label class="field-label">Antecedentes Relevantes</label>
-          <textarea id="b_antecedentes" class="field-input" placeholder="HAS, DM2, cardiopatia, cirurgias anteriores..."></textarea>
-        </div>
-
-        <!-- Alergias destaque -->
-        <div class="alergia-box">
-          <div class="alergia-header">⚠️ Alergias</div>
-          <div class="alergia-body">
-            <div class="radio-group check-verm" id="b_alergia_tipo">
-              <label class="radio-item" style="color:var(--verde)"><input type="radio" name="alergia" value="SEM ALERGIAS CONHECIDAS" onclick="toggleAlergiaField(false)"><span class="dot"></span>✅ Sem alergias conhecidas</label>
-              <label class="radio-item" style="color:var(--verm)"><input type="radio" name="alergia" value="ALERGIAS CONFIRMADAS" onclick="toggleAlergiaField(true)"><span class="dot"></span>⚠️ Alergias confirmadas</label>
+        <div class="section">
+            <div class="section-title">A - Assessment (Avaliação)</div>
+            <div class="form-group">
+                <label>Sinais Vitais:</label>
+                <input type="text" id="sinaisVitais" placeholder="PA, FC, FR, Temp, SpO2">
             </div>
-            <div id="b_alergia_campo" style="display:none">
-              <input type="text" id="b_alergias" class="field-input" placeholder="Descreva as alergias (medicamentos, látex, alimentos...)">
-            </div>
-          </div>
-        </div>
-
-        <div class="subsection sub-verde">
-          <div class="subsection-title">🔗 Dispositivos</div>
-          <div class="subsection-body">
-            <div class="check-group check-verde">
-              <label class="check-item"><input type="checkbox" name="dispositivos" value="AVC"><span class="box"></span>AVC</label>
-              <label class="check-item"><input type="checkbox" name="dispositivos" value="AVP"><span class="box"></span>AVP</label>
-              <label class="check-item"><input type="checkbox" name="dispositivos" value="SVD"><span class="box"></span>SVD</label>
-              <label class="check-item"><input type="checkbox" name="dispositivos" value="SNG/SNE"><span class="box"></span>SNG/SNE</label>
-              <label class="check-item"><input type="checkbox" name="dispositivos" value="TOT"><span class="box"></span>TOT</label>
-              <label class="check-item"><input type="checkbox" name="dispositivos" value="Traqueostomia"><span class="box"></span>Traqueostomia</label>
-              <label class="check-item"><input type="checkbox" name="dispositivos" value="Dreno"><span class="box"></span>Dreno</label>
-              <label class="check-item"><input type="checkbox" name="dispositivos" value="Marcapasso"><span class="box"></span>Marcapasso</label>
-              <label class="check-item"><input type="checkbox" name="dispositivos" value="O₂"><span class="box"></span>O₂</label>
-            </div>
-          </div>
-        </div>
-
-        <div class="subsection sub-verde">
-          <div class="subsection-title">🍽️ Dieta</div>
-          <div class="subsection-body">
-            <div class="check-group check-verde" id="b_dieta">
-              <label class="check-item"><input type="radio" name="dieta" value="Oral livre"><span class="box"></span>Oral livre</label>
-              <label class="check-item"><input type="radio" name="dieta" value="Oral restrita"><span class="box"></span>Oral restrita</label>
-              <label class="check-item"><input type="radio" name="dieta" value="Enteral contínua"><span class="box"></span>Enteral contínua</label>
-              <label class="check-item"><input type="radio" name="dieta" value="Enteral intermitente"><span class="box"></span>Enteral intermitente</label>
-              <label class="check-item"><input type="radio" name="dieta" value="Parenteral"><span class="box"></span>Parenteral</label>
-              <label class="check-item"><input type="radio" name="dieta" value="Jejum"><span class="box"></span>Jejum</label>
-              <label class="check-item"><input type="radio" name="dieta" value="Zero VO"><span class="box"></span>Zero VO</label>
-            </div>
-          </div>
-        </div>
-
-        <div class="field-group">
-          <label class="field-label">Medicamentos em Uso</label>
-          <textarea id="b_medicamentos" class="field-input" style="min-height:110px" placeholder="Liste os medicamentos, doses e vias..."></textarea>
-        </div>
-
-      </div>
-    </div>
-    <div class="nav-btns" style="padding:0 24px 24px">
-      <button class="btn btn-ghost" onclick="prevStep()">← Situação</button>
-      <span class="step-counter">Etapa 2 de 4</span>
-      <button class="btn btn-primary" onclick="nextStep()" style="background:var(--verde);box-shadow:0 4px 14px rgba(27,107,58,.3)">Avançar: Avaliação →</button>
-    </div>
-  </div>
-
-  <!-- ════════════════ A — AVALIAÇÃO ════════════════ -->
-  <div class="section-card step-2" id="step-2">
-    <div class="section-header">
-      <div class="section-letter">A</div>
-      <div class="section-header-text">
-        <h2>AVALIAÇÃO</h2>
-        <p>Sinais vitais, escalas clínicas, via aérea, balanço hídrico e exames.</p>
-      </div>
-    </div>
-    <div class="form-body">
-      <div class="form-grid">
-
-        <!-- Sinais Vitais -->
-        <div class="subsection sub-amar">
-          <div class="subsection-title">💓 Sinais Vitais</div>
-          <div class="subsection-body">
-            <table class="sv-table">
-              <thead>
-                <tr>
-                  <th></th>
-                  <th>PA (mmHg)</th><th>FC (bpm)</th><th>FR (irpm)</th><th>Temp (°C)</th><th>SpO₂ (%)</th>
-                </tr>
-              </thead>
-              <tbody>
-                <tr>
-                  <td class="sv-label">Atual</td>
-                  <td><input type="text" id="sv_pa_atual"   placeholder="120/80"></td>
-                  <td><input type="number" id="sv_fc_atual" placeholder="72"></td>
-                  <td><input type="number" id="sv_fr_atual" placeholder="16"></td>
-                  <td><input type="number" id="sv_t_atual"  placeholder="36.5" step="0.1"></td>
-                  <td><input type="number" id="sv_spo2_atual" placeholder="98"></td>
-                </tr>
-                <tr style="background:#F0F4F8">
-                  <td class="sv-label">Habitual</td>
-                  <td><input type="text" id="sv_pa_hab"   placeholder="—"></td>
-                  <td><input type="number" id="sv_fc_hab" placeholder="—"></td>
-                  <td><input type="number" id="sv_fr_hab" placeholder="—"></td>
-                  <td><input type="number" id="sv_t_hab"  placeholder="—" step="0.1"></td>
-                  <td><input type="number" id="sv_spo2_hab" placeholder="—"></td>
-                </tr>
-              </tbody>
-            </table>
-          </div>
-        </div>
-
-        <!-- Via Aérea -->
-        <div class="subsection sub-amar">
-          <div class="subsection-title">🫁 Via Aérea / Suporte O₂</div>
-          <div class="subsection-body">
-            <div class="form-grid" style="gap:10px">
-              <div class="field-group">
-                <label class="field-label">Tipo de Via Aérea</label>
-                <div class="check-group check-amar" id="a_via_aerea">
-                  <label class="check-item"><input type="radio" name="via_aerea" value="Natural"><span class="box"></span>Natural</label>
-                  <label class="check-item"><input type="radio" name="via_aerea" value="Cateter O₂"><span class="box"></span>Cateter O₂</label>
-                  <label class="check-item"><input type="radio" name="via_aerea" value="Máscara simples"><span class="box"></span>Máscara simples</label>
-                  <label class="check-item"><input type="radio" name="via_aerea" value="Máscara Venturi"><span class="box"></span>Máscara Venturi</label>
-                  <label class="check-item"><input type="radio" name="via_aerea" value="VNI (CPAP/BiPAP)"><span class="box"></span>VNI (CPAP/BiPAP)</label>
-                  <label class="check-item"><input type="radio" name="via_aerea" value="TOT"><span class="box"></span>TOT</label>
-                  <label class="check-item"><input type="radio" name="via_aerea" value="Traqueostomia"><span class="box"></span>Traqueostomia</label>
+            <div class="form-group">
+                <label>Nível de Consciência (AVPU):</label>
+                <div class="avpu-container">
+                    <div class="avpu-card" data-avpu="A">
+                        <div class="avpu-title">A - Alerta</div>
+                        <div class="avpu-desc">Consciente e orientado</div>
+                    </div>
+                    <div class="avpu-card" data-avpu="V">
+                        <div class="avpu-title">V - Verbal</div>
+                        <div class="avpu-desc">Responde a estímulos verbais</div>
+                    </div>
+                    <div class="avpu-card" data-avpu="P">
+                        <div class="avpu-title">P - Dor</div>
+                        <div class="avpu-desc">Responde a estímulos dolorosos</div>
+                    </div>
+                    <div class="avpu-card" data-avpu="U">
+                        <div class="avpu-title">U - Inconsciente</div>
+                        <div class="avpu-desc">Sem resposta</div>
+                    </div>
                 </div>
-              </div>
-              <div class="form-grid grid-3">
-                <div class="field-group">
-                  <label class="field-label">FiO₂ / L/min</label>
-                  <input type="text" id="a_fio2" class="field-input" placeholder="Ex: 40% / 4L">
-                </div>
-                <div class="field-group">
-                  <label class="field-label">SpO₂ Alvo</label>
-                  <input type="text" id="a_spo2_alvo" class="field-input" placeholder="Ex: 94–98%">
-                </div>
-                <div class="field-group">
-                  <label class="field-label">Modo Ventilatório</label>
-                  <input type="text" id="a_modo_vent" class="field-input" placeholder="Ex: VCV, PSV">
-                </div>
-              </div>
             </div>
-          </div>
+            <div class="form-group">
+                <label>Exames Laboratoriais Relevantes:</label>
+                <textarea id="examesLab" placeholder="Resultados importantes de exames"></textarea>
+            </div>
+            <div class="form-group">
+                <label>Observações Clínicas:</label>
+                <textarea id="observacoes" placeholder="Estado geral, queixas, intercorrências..."></textarea>
+            </div>
         </div>
 
-        <!-- Balanço Hídrico -->
-        <div class="subsection sub-amar">
-          <div class="subsection-title">💧 Diurese e Balanço Hídrico</div>
-          <div class="subsection-body">
-            <div class="form-grid grid-2" style="gap:10px;margin-bottom:12px">
-              <div class="field-group">
-                <label class="field-label">Diurese (mL/turno)</label>
-                <input type="number" id="bh_diurese" class="field-input" placeholder="Ex: 850" oninput="calcBH()">
-              </div>
-              <div class="field-group">
-                <label class="field-label">Ingesta Total (mL)</label>
-                <input type="number" id="bh_ingesta" class="field-input" placeholder="Ex: 1200" oninput="calcBH()">
-              </div>
-              <div class="field-group">
-                <label class="field-label">Perdas (mL)</label>
-                <input type="number" id="bh_perdas" class="field-input" placeholder="Ex: 150" oninput="calcBH()">
-              </div>
-              <div class="field-group">
-                <label class="field-label">Balanço Hídrico (BH)</label>
-                <input type="text" id="bh_resultado" class="field-input" placeholder="Calculado automaticamente" readonly style="background:#F0F4F8;font-family:'DM Mono',monospace;font-weight:600">
-              </div>
+        <div class="section">
+            <div class="section-title">R - Recommendation (Recomendação)</div>
+            <div class="form-group">
+                <label>Cuidados Necessários:</label>
+                <textarea id="cuidados" placeholder="Procedimentos, monitorização, precauções..."></textarea>
             </div>
-            <div class="field-group">
-              <label class="field-label">Aspecto da Urina</label>
-              <div class="check-group check-amar">
-                <label class="check-item"><input type="radio" name="aspecto_urina" value="Clara"><span class="box"></span>Clara</label>
-                <label class="check-item"><input type="radio" name="aspecto_urina" value="Amarelo-citrino"><span class="box"></span>Amarelo-citrino</label>
-                <label class="check-item"><input type="radio" name="aspecto_urina" value="Âmbar"><span class="box"></span>Âmbar</label>
-                <label class="check-item"><input type="radio" name="aspecto_urina" value="Hematúrica"><span class="box"></span>Hematúrica</label>
-                <label class="check-item"><input type="radio" name="aspecto_urina" value="Turva"><span class="box"></span>Turva</label>
-                <label class="check-item"><input type="radio" name="aspecto_urina" value="Colúrica"><span class="box"></span>Colúrica</label>
-              </div>
+            <div class="form-group">
+                <label>Pendências:</label>
+                <textarea id="pendencias" placeholder="Exames pendentes, condutas a realizar..."></textarea>
             </div>
-          </div>
+            <div class="form-group">
+                <label>Plano de Cuidados:</label>
+                <textarea id="plano" placeholder="Orientações para o próximo plantão"></textarea>
+            </div>
         </div>
 
-        <!-- Escala de Dor -->
-        <div class="subsection sub-amar">
-          <div class="subsection-title">😣 Escala de Dor (0–10)</div>
-          <div class="subsection-body">
-            <div class="dor-scale" id="dorScale">
-              <button class="dor-btn" style="background:#1B6B3A" onclick="selectDor(0)">0</button>
-              <button class="dor-btn" style="background:#2E7D32" onclick="selectDor(1)">1</button>
-              <button class="dor-btn" style="background:#388E3C" onclick="selectDor(2)">2</button>
-              <button class="dor-btn" style="background:#558B2F" onclick="selectDor(3)">3</button>
-              <button class="dor-btn" style="background:#F9A825" onclick="selectDor(4)">4</button>
-              <button class="dor-btn" style="background:#F57C00" onclick="selectDor(5)">5</button>
-              <button class="dor-btn" style="background:#EF6C00" onclick="selectDor(6)">6</button>
-              <button class="dor-btn" style="background:#E64A19" onclick="selectDor(7)">7</button>
-              <button class="dor-btn" style="background:#C62828" onclick="selectDor(8)">8</button>
-              <button class="dor-btn" style="background:#B71C1C" onclick="selectDor(9)">9</button>
-              <button class="dor-btn" style="background:#6A0000" onclick="selectDor(10)">10</button>
-            </div>
-            <div class="dor-legend">
-              <span class="dor-leg-item" style="background:#E8F5E9;color:#1B6B3A">0–3 Leve</span>
-              <span class="dor-leg-item" style="background:#FFF3CD;color:#F57C00">4–6 Moderada</span>
-              <span class="dor-leg-item" style="background:#FFCDD2;color:#C62828">7–9 Intensa</span>
-              <span class="dor-leg-item" style="background:#FFEBEE;color:#6A0000">10 Insuportável</span>
-            </div>
-            <div id="dorResult" style="margin-top:8px;font-size:.85rem;font-weight:600;display:none"></div>
-          </div>
+        <div class="button-group">
+            <button class="btn-primary" onclick="window.print()">🖨️ Imprimir</button>
+            <button class="btn-secondary" id="clearFormBtn">🔄 Limpar e Nova Passagem</button>
         </div>
-
-        <!-- AVPU -->
-        <div class="subsection sub-amar">
-          <div class="subsection-title">🧠 Nível de Consciência — AVPU</div>
-          <div class="subsection-body">
-            <div class="avpu-grid" id="avpuGrid">
-              <div class="avpu-card" data-val="A" style="border-color:#1B6B3A" onclick="selectAVPU(this)">
-                <div class="av-letter" style="color:#1B6B3A">A</div>
-                <div class="av-name" style="color:#1B6B3A">Alert</div>
-                <div class="av-desc">Orientado em tempo, espaço e pessoa</div>
-              </div>
-              <div class="avpu-card" data-val="V" style="border-color:#F57C00" onclick="selectAVPU(this)">
-                <div class="av-letter" style="color:#F57C00">V</div>
-                <div class="av-name" style="color:#F57C00">Voice</div>
-                <div class="av-desc">Responde apenas a estímulo verbal</div>
-              </div>
-              <div class="avpu-card" data-val="P" style="border-color:#C62828" onclick="selectAVPU(this)">
-                <div class="av-letter" style="color:#C62828">P</div>
-                <div class="av-name" style="color:#C62828">Pain</div>
-                <div class="av-desc">Responde apenas a estímulo doloroso</div>
-              </div>
-              <div class="avpu-card" data-val="U" style="border-color:#6A0000" onclick="selectAVPU(this)">
-                <div class="av-letter" style="color:#6A0000">U</div>
-                <div class="av-name" style="color:#6A0000">Unresponsive</div>
-                <div class="av-desc">Sem resposta a qualquer estímulo</div>
-              </div>
-            </div>
-          </div>
-        </div>
-
-        <!-- Glasgow -->
-        <div class="subsection sub-amar">
-          <div class="subsection-title">🧩 Escala de Glasgow — some 1 opção por grupo</div>
-          <div class="subsection-body">
-            <!-- Ocular -->
-            <div style="margin-bottom:14px">
-              <div style="font-size:.75rem;font-weight:700;color:var(--azul-m);text-transform:uppercase;letter-spacing:.5px;margin-bottom:6px">Abertura Ocular (O) — máx 4 pts</div>
-              <div class="radio-group" id="g_ocular" style="gap:6px">
-                <label class="radio-item" style="color:#2E6DA4"><input type="radio" name="glasgow_o" value="4" onchange="calcGlasgow()"><span class="dot" style="border-color:#2E6DA4"></span>4 — Espontânea</label>
-                <label class="radio-item" style="color:#2E6DA4"><input type="radio" name="glasgow_o" value="3" onchange="calcGlasgow()"><span class="dot" style="border-color:#2E6DA4"></span>3 — À voz</label>
-                <label class="radio-item" style="color:#2E6DA4"><input type="radio" name="glasgow_o" value="2" onchange="calcGlasgow()"><span class="dot" style="border-color:#2E6DA4"></span>2 — À dor</label>
-                <label class="radio-item" style="color:#2E6DA4"><input type="radio" name="glasgow_o" value="1" onchange="calcGlasgow()"><span class="dot" style="border-color:#2E6DA4"></span>1 — Ausente</label>
-              </div>
-            </div>
-            <!-- Verbal -->
-            <div style="margin-bottom:14px">
-              <div style="font-size:.75rem;font-weight:700;color:#6A0DAD;text-transform:uppercase;letter-spacing:.5px;margin-bottom:6px">Resposta Verbal (V) — máx 5 pts</div>
-              <div class="radio-group" id="g_verbal" style="gap:6px">
-                <label class="radio-item" style="color:#6A0DAD"><input type="radio" name="glasgow_v" value="5" onchange="calcGlasgow()"><span class="dot" style="border-color:#6A0DAD"></span>5 — Orientado</label>
-                <label class="radio-item" style="color:#6A0DAD"><input type="radio" name="glasgow_v" value="4" onchange="calcGlasgow()"><span class="dot" style="border-color:#6A0DAD"></span>4 — Confuso</label>
-                <label class="radio-item" style="color:#6A0DAD"><input type="radio" name="glasgow_v" value="3" onchange="calcGlasgow()"><span class="dot" style="border-color:#6A0DAD"></span>3 — Palavras</label>
-                <label class="radio-item" style="color:#6A0DAD"><input type="radio" name="glasgow_v" value="2" onchange="calcGlasgow()"><span class="dot" style="border-color:#6A0DAD"></span>2 — Sons</label>
-                <label class="radio-item" style="color:#6A0DAD"><input type="radio" name="glasgow_v" value="1" onchange="calcGlasgow()"><span class="dot" style="border-color:#6A0DAD"></span>1 — Ausente</label>
-              </div>
-            </div>
-            <!-- Motor -->
-            <div style="margin-bottom:14px">
-              <div style="font-size:.75rem;font-weight:700;color:var(--verde);text-transform:uppercase;letter-spacing:.5px;margin-bottom:6px">Resposta Motora (M) — máx 6 pts</div>
-              <div class="radio-group" id="g_motor" style="gap:6px;flex-wrap:wrap">
-                <label class="radio-item" style="color:var(--verde)"><input type="radio" name="glasgow_m" value="6" onchange="calcGlasgow()"><span class="dot" style="border-color:var(--verde)"></span>6 — Obedece</label>
-                <label class="radio-item" style="color:var(--verde)"><input type="radio" name="glasgow_m" value="5" onchange="calcGlasgow()"><span class="dot" style="border-color:var(--verde)"></span>5 — Localiza</label>
-                <label class="radio-item" style="color:var(--verde)"><input type="radio" name="glasgow_m" value="4" onchange="calcGlasgow()"><span class="dot" style="border-color:var(--verde)"></span>4 — Flexão normal</label>
-                <label class="radio-item" style="color:var(--verde)"><input type="radio" name="glasgow_m" value="3" onchange="calcGlasgow()"><span class="dot" style="border-color:var(--verde)"></span>3 — Flexão anormal</label>
-                <label class="radio-item" style="color:var(--verde)"><input type="radio" name="glasgow_m" value="2" onchange="calcGlasgow()"><span class="dot" style="border-color:var(--verde)"></span>2 — Extensão</label>
-                <label class="radio-item" style="color:var(--verde)"><input type="radio" name="glasgow_m" value="1" onchange="calcGlasgow()"><span class="dot" style="border-color:var(--verde)"></span>1 — Ausente</label>
-              </div>
-            </div>
-            <div class="scale-total-box" id="glasgowTotal" style="display:none">
-              <div class="total-display" id="glasgowTotalBox"></div>
-              <div class="risk-badge" id="glasgowBadge"></div>
-            </div>
-          </div>
-        </div>
-
-        <!-- Braden -->
-        <div class="subsection sub-roxo">
-          <div class="subsection-title">🩹 Risco de LPP — Escala de Braden</div>
-          <div class="subsection-body">
-            <div style="overflow-x:auto">
-            <table class="scale-table" style="min-width:500px">
-              <thead><tr style="background:var(--roxo-cl)">
-                <th style="color:var(--roxo)">Subescala</th>
-                <th style="color:var(--roxo);text-align:center" colspan="4">Pontuação</th>
-              </tr></thead>
-              <tbody id="bradenBody"></tbody>
-            </table>
-            </div>
-            <div class="scale-total-box" id="bradenTotal" style="display:none;margin-top:14px">
-              <div class="total-display" id="bradenTotalBox"></div>
-              <div class="risk-badge" id="bradenBadge"></div>
-            </div>
-          </div>
-        </div>
-
-        <!-- Morse -->
-        <div class="subsection sub-laran">
-          <div class="subsection-title">🚶 Risco de Queda — Escala de Morse</div>
-          <div class="subsection-body">
-            <div style="overflow-x:auto">
-            <table class="scale-table" style="min-width:500px">
-              <thead><tr style="background:var(--laran-cl)">
-                <th style="color:var(--laran)">Fator de Risco</th>
-                <th style="color:var(--laran);text-align:center" colspan="3">Opções</th>
-              </tr></thead>
-              <tbody id="morseBody"></tbody>
-            </table>
-            </div>
-            <div class="scale-total-box" id="morseTotal" style="display:none;margin-top:14px">
-              <div class="total-display" id="morseTotalBox"></div>
-              <div class="risk-badge" id="morseBadge"></div>
-            </div>
-          </div>
-        </div>
-
-        <!-- Exames -->
-        <div class="form-grid" style="gap:10px">
-          <div class="field-group">
-            <label class="field-label">Exames Laboratoriais Relevantes</label>
-            <textarea id="a_exames_lab" class="field-input" placeholder="Hb, Ht, leucócitos, ureia, creatinina, sódio, potássio..."></textarea>
-          </div>
-          <div class="field-group">
-            <label class="field-label">Exames de Imagem</label>
-            <textarea id="a_exames_img" class="field-input" placeholder="RX, TC, USG, ECG..."></textarea>
-          </div>
-          <div class="field-group">
-            <label class="field-label">Avaliação de Enfermagem</label>
-            <textarea id="a_avaliacao" class="field-input" style="min-height:90px" placeholder="Raciocínio clínico, achados relevantes, evolução observada..."></textarea>
-          </div>
-        </div>
-
-      </div>
     </div>
-    <div class="nav-btns" style="padding:0 24px 24px">
-      <button class="btn btn-ghost" onclick="prevStep()">← Background</button>
-      <span class="step-counter">Etapa 3 de 4</span>
-      <button class="btn btn-primary" onclick="nextStep()" style="background:var(--amar);box-shadow:0 4px 14px rgba(123,92,0,.3)">Avançar: Recomendação →</button>
-    </div>
-  </div>
 
-  <!-- ════════════════ R — RECOMENDAÇÃO ════════════════ -->
-  <div class="section-card step-3" id="step-3">
-    <div class="section-header">
-      <div class="section-letter">R</div>
-      <div class="section-header-text">
-        <h2>RECOMENDAÇÃO</h2>
-        <p>O que o próximo turno precisa saber e fazer.</p>
-      </div>
-    </div>
-    <div class="form-body">
-      <div class="form-grid">
-
-        <div class="field-group">
-          <label class="field-label">Conduta Solicitada / Em Andamento</label>
-          <textarea id="r_conduta" class="field-input" placeholder="Condutas médicas solicitadas, procedimentos em andamento..."></textarea>
-        </div>
-
-        <div class="field-group">
-          <label class="field-label">Cuidados Prioritários para o Turno</label>
-          <textarea id="r_cuidados" class="field-input" placeholder="O que o enfermeiro que recebe deve priorizar..."></textarea>
-        </div>
-
-        <!-- Pendências -->
-        <div class="subsection sub-verm">
-          <div class="subsection-title">⚠️ Pendências / Alertas</div>
-          <div class="subsection-body">
-            <div class="pend-grid" id="pendGrid">
-              <!-- gerado por JS -->
-            </div>
-            <div class="field-group" style="margin-top:12px">
-              <label class="field-label">Outros Alertas</label>
-              <input type="text" id="r_outros_alertas" class="field-input" placeholder="Alertas adicionais...">
-            </div>
-          </div>
-        </div>
-
-        <div class="field-group">
-          <label class="field-label">Previsão de Alta / Transferência</label>
-          <input type="text" id="r_alta" class="field-input" placeholder="Data prevista ou observações sobre alta/transferência">
-        </div>
-
-        <!-- Assinaturas -->
-        <div class="form-grid grid-2" style="gap:14px">
-          <div class="subsection sub-azul">
-            <div class="subsection-title">✍️ Quem Passa o Plantão</div>
-            <div class="subsection-body">
-              <div class="form-grid" style="gap:8px">
-                <div class="field-group">
-                  <label class="field-label">Nome</label>
-                  <input type="text" id="r_passa_nome" class="field-input" placeholder="Nome completo">
-                </div>
-                <div class="field-group">
-                  <label class="field-label">COREN</label>
-                  <input type="text" id="r_passa_coren" class="field-input" placeholder="COREN-RJ 000000">
-                </div>
-                <div class="field-group">
-                  <label class="field-label">Horário</label>
-                  <input type="time" id="r_passa_hora" class="field-input">
-                </div>
-              </div>
-            </div>
-          </div>
-          <div class="subsection sub-azul">
-            <div class="subsection-title">✍️ Quem Recebe o Plantão</div>
-            <div class="subsection-body">
-              <div class="form-grid" style="gap:8px">
-                <div class="field-group">
-                  <label class="field-label">Nome</label>
-                  <input type="text" id="r_recebe_nome" class="field-input" placeholder="Nome completo">
-                </div>
-                <div class="field-group">
-                  <label class="field-label">COREN</label>
-                  <input type="text" id="r_recebe_coren" class="field-input" placeholder="COREN-RJ 000000">
-                </div>
-                <div class="field-group">
-                  <label class="field-label">Horário</label>
-                  <input type="time" id="r_recebe_hora" class="field-input">
-                </div>
-              </div>
-            </div>
-          </div>
-        </div>
-
-        <!-- E-mail -->
-        <div class="subsection sub-azul">
-          <div class="subsection-title">📧 Envio e Impressão</div>
-          <div class="subsection-body">
-            <div class="field-group" style="margin-bottom:14px">
-              <label class="field-label">E-mail Destinatário</label>
-              <input type="email" id="emailDestino" class="field-input" placeholder="email@hospital.com.br">
-            </div>
-            <div style="display:flex;gap:10px;flex-wrap:wrap">
-              <button class="btn btn-success" onclick="openModal()">📧 Enviar por E-mail</button>
-              <button class="btn btn-print" onclick="printForm()">🖨️ Imprimir / Salvar PDF</button>
-            </div>
-            <div style="margin-top:10px;font-size:.75rem;color:var(--muted)">
-              💡 Para envio via e-mail é necessário configurar o EmailJS com sua conta gratuita em <strong>emailjs.com</strong>
-            </div>
-          </div>
-        </div>
-
-      </div>
-    </div>
-    <div class="nav-btns" style="padding:0 24px 24px">
-      <button class="btn btn-ghost" onclick="prevStep()">← Avaliação</button>
-      <span class="step-counter">Etapa 4 de 4</span>
-    </div>
-  </div>
-
-</div><!-- /stepper-wrap -->
-
-<!-- Modal de envio -->
-<div class="modal-overlay" id="modalOverlay">
-  <div class="modal">
-    <h3>📧 Confirmar Envio</h3>
-    <p>Revise o resumo abaixo antes de enviar.</p>
-    <div class="summary-preview" id="summaryPreview"></div>
-    <div class="modal-btns">
-      <button class="btn btn-success" onclick="sendEmail()">✅ Confirmar e Enviar</button>
-      <button class="btn btn-ghost" onclick="closeModal()">Cancelar</button>
-    </div>
-  </div>
-</div>
-
-<!-- Toast -->
-<div class="toast" id="toast"></div>
-
-<script>
-// ── EMAILJS CONFIG ─────────────────────────────────────
-// Para ativar: crie conta em emailjs.com, substitua os valores abaixo
-const EMAILJS_SERVICE_ID  = 'servico_wyr970t';
-const EMAILJS_TEMPLATE_ID = 'template_94ew7yt';
-const EMAILJS_PUBLIC_KEY  = '4Qc98Va-9yln2tnmS';
-
-emailjs.init(EMAILJS_PUBLIC_KEY);
-
-// ── STEPPER ────────────────────────────────────────────
-let currentStep = 0;
-const totalSteps = 4;
-
-function goToStep(n) {
-  document.querySelectorAll('.section-card').forEach(c => c.classList.remove('active'));
-  document.querySelectorAll('.step-tab').forEach(t => t.classList.remove('active'));
-  document.getElementById(`step-${n}`).classList.add('active');
-  document.querySelector(`.step-tab[data-step="${n}"]`).classList.add('active');
-  // marca concluídas
-  document.querySelectorAll('.step-tab').forEach(t => {
-    const s = parseInt(t.dataset.step);
-    t.classList.toggle('done', s < n);
-  });
-  currentStep = n;
-  document.getElementById('progressBar').style.width = `${((n+1)/totalSteps)*100}%`;
-  window.scrollTo({ top: 0, behavior: 'smooth' });
-}
-function nextStep() { if(currentStep < totalSteps-1) goToStep(currentStep+1); }
-function prevStep() { if(currentStep > 0) goToStep(currentStep-1); }
-
-// ── ALERGIA ────────────────────────────────────────────
-function toggleAlergiaField(show) {
-  document.getElementById('b_alergia_campo').style.display = show ? 'block' : 'none';
-}
-
-// ── DOR ────────────────────────────────────────────────
-let dorValue = null;
-function selectDor(n) {
-  dorValue = n;
-  document.querySelectorAll('.dor-btn').forEach((b,i) => b.classList.toggle('selected', i===n));
-  const labels = ['','','','Dor leve','Dor leve','Dor moderada','Dor moderada','Dor intensa','Dor intensa','Dor intensa','Dor insuportável'];
-  const colors = ['#1B6B3A','#2E7D32','#388E3C','#558B2F','#F9A825','#F57C00','#EF6C00','#E64A19','#C62828','#B71C1C','#6A0000'];
-  const el = document.getElementById('dorResult');
-  el.style.display = 'block';
-  el.innerHTML = `<span style="color:${colors[n]}">Dor selecionada: <strong>${n}/10 — ${n===0?'Sem dor':labels[n]||'Dor leve'}</strong></span>`;
-}
-
-// ── AVPU ───────────────────────────────────────────────
-let avpuValue = null;
-function selectAVPU(el) {
-  document.querySelectorAll('.avpu-card').forEach(c => { c.classList.remove('selected'); c.style.background=''; });
-  el.classList.add('selected');
-  avpuValue = el.dataset.val;
-  const bgs = { A:'#D4EDDA', V:'#FFF3CD', P:'#FFCDD2', U:'#FFEBEE' };
-  el.style.background = bgs[avpuValue] || '';
-}
-
-// ── GLASGOW ────────────────────────────────────────────
-function calcGlasgow() {
-  const o = document.querySelector('input[name=glasgow_o]:checked');
-  const v = document.querySelector('input[name=glasgow_v]:checked');
-  const m = document.querySelector('input[name=glasgow_m]:checked');
-  if (!o || !v || !m) return;
-  const total = parseInt(o.value) + parseInt(v.value) + parseInt(m.value);
-  const box = document.getElementById('glasgowTotalBox');
-  const badge = document.getElementById('glasgowBadge');
-  document.getElementById('glasgowTotal').style.display = 'flex';
-  box.textContent = `Total: ${total}/15`;
-  let r, bg, col;
-  if (total >= 13)      { r='TCE Leve';     bg='#D4EDDA'; col='#1B6B3A'; }
-  else if (total >= 9)  { r='Moderado';     bg='#FFF3CD'; col='#F57C00'; }
-  else if (total > 3)   { r='Grave / IOT';  bg='#FFCDD2'; col='#C62828'; }
-  else                  { r='Morte cerebral';bg='#FFEBEE'; col='#6A0000'; }
-  box.style.cssText = `background:${bg};color:${col};padding:10px 18px;border-radius:10px;font-weight:700;font-size:1.1rem`;
-  badge.textContent = r;
-  badge.style.cssText = `background:${bg};color:${col};padding:6px 14px;border-radius:20px;font-size:.8rem;font-weight:700`;
-}
-
-// ── BRADEN ─────────────────────────────────────────────
-const bradenData = [
-  { nome:'Percepção sensorial', pts:[{p:1,d:'Completamente limitada'},{p:2,d:'Muito limitada'},{p:3,d:'Levem. limitada'},{p:4,d:'Sem limitação'}] },
-  { nome:'Umidade',             pts:[{p:1,d:'Constantemente úmida'}, {p:2,d:'Muito úmida'},    {p:3,d:'Ocasionalmente'}, {p:4,d:'Raramente úmida'}] },
-  { nome:'Atividade',           pts:[{p:1,d:'Acamado'},              {p:2,d:'Cadeira'},         {p:3,d:'Anda ocasionalmente'},{p:4,d:'Anda frequentemente'}] },
-  { nome:'Mobilidade',          pts:[{p:1,d:'Totalmente imóvel'},    {p:2,d:'Muito limitada'},  {p:3,d:'Levem. limitada'},{p:4,d:'Sem limitação'}] },
-  { nome:'Nutrição',            pts:[{p:1,d:'Muito pobre'},          {p:2,d:'Inadequada'},      {p:3,d:'Adequada'},      {p:4,d:'Excelente'}] },
-  { nome:'Fricção/Cisalhamento (máx 3)', pts:[{p:1,d:'Problema'},{p:2,d:'Risco potencial'},{p:3,d:'Sem problema'}] },
-];
-function buildBraden() {
-  const tbody = document.getElementById('bradenBody');
-  bradenData.forEach((sub,i) => {
-    const tr = document.createElement('tr');
-    tr.className = 'scale-row';
-    let cells = `<td style="font-weight:600;font-size:.82rem;color:var(--roxo)">${sub.nome}</td>`;
-    for (let j=0; j<4; j++) {
-      const it = sub.pts[j];
-      if (it) {
-        cells += `<td><label style="display:flex;align-items:center;gap:5px;cursor:pointer;font-size:.8rem">
-          <input type="radio" name="braden_${i}" value="${it.p}" onchange="calcBraden()" style="accent-color:var(--roxo)">
-          <strong style="color:var(--roxo)">${it.p}</strong> — ${it.d}
-        </label></td>`;
-      } else {
-        cells += `<td style="color:#ccc;font-size:.75rem;text-align:center">—</td>`;
-      }
-    }
-    tr.innerHTML = cells;
-    tbody.appendChild(tr);
-  });
-}
-function calcBraden() {
-  let total = 0, count = 0;
-  for (let i=0; i<bradenData.length; i++) {
-    const r = document.querySelector(`input[name=braden_${i}]:checked`);
-    if (r) { total += parseInt(r.value); count++; }
-  }
-  if (count < bradenData.length) return;
-  const box   = document.getElementById('bradenTotalBox');
-  const badge = document.getElementById('bradenBadge');
-  document.getElementById('bradenTotal').style.display = 'flex';
-  let r, bg, col;
-  if (total <= 9)       { r='Risco muito alto'; bg='#FFEBEE'; col='#6A0000'; }
-  else if (total <= 12) { r='Risco alto';       bg='#FFCDD2'; col='#C62828'; }
-  else if (total <= 14) { r='Risco moderado';   bg='#FFF3CD'; col='#F57C00'; }
-  else if (total <= 18) { r='Risco baixo';      bg='#E8F5E9'; col='#2E7D32'; }
-  else                  { r='Sem risco';        bg='#D4EDDA'; col='#1B6B3A'; }
-  box.textContent = `Total: ${total}/23`;
-  box.style.cssText  = `background:${bg};color:${col};padding:10px 18px;border-radius:10px;font-weight:700;font-size:1.1rem`;
-  badge.textContent  = r;
-  badge.style.cssText= `background:${bg};color:${col};padding:6px 14px;border-radius:20px;font-size:.8rem;font-weight:700`;
-}
-
-// ── MORSE ──────────────────────────────────────────────
-const morseData = [
-  { f:'Histórico de quedas (últimos 3 meses)', ops:[{p:0,d:'Não'},{p:25,d:'Sim'}] },
-  { f:'Diagnóstico secundário (≥ 2)',          ops:[{p:0,d:'Não'},{p:15,d:'Sim'}] },
-  { f:'Auxílio para deambulação',              ops:[{p:0,d:'Nenhum / Acamado'},{p:15,d:'Muletas / Bengala / Andador'},{p:30,d:'Apoia-se em mobília'}] },
-  { f:'Acesso venoso / heparinização',         ops:[{p:0,d:'Não'},{p:20,d:'Sim'}] },
-  { f:'Marcha / transferência',                ops:[{p:0,d:'Normal / Acamado / Imóvel'},{p:10,d:'Fraca'},{p:20,d:'Comprometida'}] },
-  { f:'Estado mental',                         ops:[{p:0,d:'Orientado para suas limitações'},{p:15,d:'Esquece das limitações'}] },
-];
-function buildMorse() {
-  const tbody = document.getElementById('morseBody');
-  morseData.forEach((item, i) => {
-    const tr = document.createElement('tr');
-    tr.className = 'scale-row';
-    let cells = `<td style="font-weight:600;font-size:.82rem;color:var(--laran)">${item.f}</td>`;
-    for (let j=0; j<3; j++) {
-      const op = item.ops[j];
-      if (op) {
-        cells += `<td><label style="display:flex;align-items:center;gap:5px;cursor:pointer;font-size:.8rem">
-          <input type="radio" name="morse_${i}" value="${op.p}" onchange="calcMorse()" style="accent-color:var(--laran)">
-          <strong style="color:var(--laran)">${op.p}</strong> — ${op.d}
-        </label></td>`;
-      } else {
-        cells += `<td></td>`;
-      }
-    }
-    tr.innerHTML = cells;
-    tbody.appendChild(tr);
-  });
-}
-function calcMorse() {
-  let total = 0, count = 0;
-  for (let i=0; i<morseData.length; i++) {
-    const r = document.querySelector(`input[name=morse_${i}]:checked`);
-    if (r) { total += parseInt(r.value); count++; }
-  }
-  if (count < morseData.length) return;
-  const box   = document.getElementById('morseTotalBox');
-  const badge = document.getElementById('morseBadge');
-  document.getElementById('morseTotal').style.display = 'flex';
-  let r, bg, col;
-  // Ponto de corte Urbanetto et al. 2013 (validação brasileira)
-  if (total < 16)  { r='Risco baixo — medidas padrão';    bg='#D4EDDA'; col='#1B6B3A'; }
-  else             { r='Risco alto — protocolo completo'; bg='#FFCDD2'; col='#C62828'; }
-  box.textContent = `Total: ${total} pts`;
-  box.style.cssText  = `background:${bg};color:${col};padding:10px 18px;border-radius:10px;font-weight:700;font-size:1.1rem`;
-  badge.textContent  = r;
-  badge.style.cssText= `background:${bg};color:${col};padding:6px 14px;border-radius:20px;font-size:.8rem;font-weight:700`;
-}
-
-// ── BALANÇO HÍDRICO ────────────────────────────────────
-function calcBH() {
-  const d = parseFloat(document.getElementById('bh_diurese').value) || 0;
-  const i = parseFloat(document.getElementById('bh_ingesta').value) || 0;
-  const p = parseFloat(document.getElementById('bh_perdas').value)  || 0;
-  if (!i && !d && !p) { document.getElementById('bh_resultado').value = ''; return; }
-  const bh = i - d - p;
-  const sinal = bh >= 0 ? '+' : '';
-  document.getElementById('bh_resultado').value = `${sinal}${bh.toFixed(0)} mL`;
-  document.getElementById('bh_resultado').style.color = bh < 0 ? '#C62828' : bh > 500 ? '#F57C00' : '#1B6B3A';
-}
-
-// ── PENDÊNCIAS ─────────────────────────────────────────
-const pendencias = [
-  'Reavaliação médica','Exame laboratorial','Exame de imagem',
-  'Ajuste de prescrição','Comunicação à família','Curativo / procedimento',
-  'Contato com outro setor','Alta / transferência programada',
-];
-function buildPendencias() {
-  const grid = document.getElementById('pendGrid');
-  pendencias.forEach((label, i) => {
-    const div = document.createElement('div');
-    div.className = 'pend-item';
-    div.innerHTML = `
-      <input type="checkbox" id="pend_${i}" name="pend" value="${label}">
-      <div class="pend-box" onclick="document.getElementById('pend_${i}').click()"></div>
-      <label class="pend-label" for="pend_${i}">${label}</label>
-      <input type="text" class="field-input pend-hora" placeholder="até ___h" id="pend_hora_${i}">
-    `;
-    grid.appendChild(div);
-  });
-}
-
-// ── COLETA DE DADOS ────────────────────────────────────
-function val(id)    { const el=document.getElementById(id); return el?el.value.trim():''; }
-function radio(name){ const r=document.querySelector(`input[name=${name}]:checked`); return r?r.value:'—'; }
-function checks(name){ return [...document.querySelectorAll(`input[name=${name}]:checked`)].map(c=>c.value).join(', ')||'Nenhum'; }
-function getGlasgow(){
-  const o=document.querySelector('input[name=glasgow_o]:checked');
-  const v=document.querySelector('input[name=glasgow_v]:checked');
-  const m=document.querySelector('input[name=glasgow_m]:checked');
-  if(!o||!v||!m) return 'Não avaliado';
-  const t=parseInt(o.value)+parseInt(v.value)+parseInt(m.value);
-  let cl; if(t>=13)cl='TCE Leve'; else if(t>=9)cl='Moderado'; else if(t>3)cl='Grave'; else cl='Morte cerebral';
-  return `O:${o.value} V:${v.value} M:${m.value} = ${t}/15 (${cl})`;
-}
-function getBraden(){
-  let t=0,ok=true;
-  for(let i=0;i<bradenData.length;i++){const r=document.querySelector(`input[name=braden_${i}]:checked`);if(r)t+=parseInt(r.value);else ok=false;}
-  if(!ok)return 'Não avaliado';
-  let cl; if(t<=9)cl='Risco muito alto'; else if(t<=12)cl='Risco alto'; else if(t<=14)cl='Risco moderado'; else if(t<=18)cl='Risco baixo'; else cl='Sem risco';
-  return `${t}/23 (${cl})`;
-}
-function getMorse(){
-  let t=0,ok=true;
-  for(let i=0;i<morseData.length;i++){const r=document.querySelector(`input[name=morse_${i}]:checked`);if(r)t+=parseInt(r.value);else ok=false;}
-  if(!ok)return 'Não avaliado';
-  const cl = t<16 ? 'Risco baixo' : 'Risco alto';
-  return `${t} pts (${cl} — Urbanetto 2013)`;
-}
-function getPendencias(){
-  return pendencias.map((label,i)=>{
-    const cb=document.getElementById(`pend_${i}`);
-    const h=document.getElementById(`pend_hora_${i}`);
-    if(cb&&cb.checked) return `☑ ${label}${h&&h.value?' — até '+h.value:''}`;
-    return null;
-  }).filter(Boolean).join('\n')||'Nenhuma pendência marcada';
-}
-
-function buildSummary() {
-  const alTipo = radio('alergia');
-  const alDesc = alTipo.includes('CONFIRMADAS') ? val('b_alergias') : '';
-  const alergia = alTipo + (alDesc ? ': ' + alDesc : '');
-
-  return `════════════════════════════════════════
-PASSAGEM DE PLANTÃO — MODELO SBAR
-════════════════════════════════════════
-
-── S — SITUAÇÃO ──────────────────────────
-Data / Hora:    ${val('s_data')} ${val('s_hora')}
-Turno:          ${radio('turno')} | Nº pacientes: ${val('s_npac')}
-Paciente:       ${val('s_nome')}
-Prontuário:     ${val('s_prontuario')} | Leito/Setor: ${val('s_leito')}
-Médico:         ${val('s_medico')} | Convênio: ${val('s_convenio')}
-Diagnóstico:    ${val('s_diag')}
-Motivo intern.: ${val('s_motivo')}
-Situação atual: ${val('s_situacao')}
-Isolamento:     ${radio('isolamento')}
-
-── B — BACKGROUND ───────────────────────
-Internação:     ${val('b_internacao')} | Cirurgia: ${val('b_cirurgia')}
-Antecedentes:   ${val('b_antecedentes')}
-Alergias:       ${alergia}
-Dispositivos:   ${checks('dispositivos')}
-Dieta:          ${radio('dieta')}
-Medicamentos:
-${val('b_medicamentos')}
-
-── A — AVALIAÇÃO ────────────────────────
-Sinais Vitais (Atual / Habitual):
-  PA: ${val('sv_pa_atual')} / ${val('sv_pa_hab')}
-  FC: ${val('sv_fc_atual')} / ${val('sv_fc_hab')} bpm
-  FR: ${val('sv_fr_atual')} / ${val('sv_fr_hab')} irpm
-  Temp: ${val('sv_t_atual')} / ${val('sv_t_hab')} °C
-  SpO₂: ${val('sv_spo2_atual')} / ${val('sv_spo2_hab')} %
-
-Via aérea: ${radio('via_aerea')}
-  FiO₂/L/min: ${val('a_fio2')} | SpO₂ alvo: ${val('a_spo2_alvo')} | Modo: ${val('a_modo_vent')}
-
-Diurese: ${val('bh_diurese')} mL | Ingesta: ${val('bh_ingesta')} mL | Perdas: ${val('bh_perdas')} mL
-Balanço hídrico: ${val('bh_resultado')}
-Aspecto urina: ${radio('aspecto_urina')}
-
-Escala de Dor: ${dorValue !== null ? dorValue + '/10' : 'Não avaliado'}
-AVPU: ${avpuValue || 'Não avaliado'}
-Glasgow: ${getGlasgow()}
-Braden (LPP): ${getBraden()}
-Morse (Queda): ${getMorse()}
-
-Exames lab.: ${val('a_exames_lab')}
-Exames imagem: ${val('a_exames_img')}
-Avaliação enf.: ${val('a_avaliacao')}
-
-── R — RECOMENDAÇÃO ──────────────────────
-Conduta: ${val('r_conduta')}
-Cuidados prioritários: ${val('r_cuidados')}
-
-Pendências:
-${getPendencias()}
-
-Outros alertas: ${val('r_outros_alertas')}
-Previsão alta/transf.: ${val('r_alta')}
-
-────────────────────────────────────────
-Passa plantão:  ${val('r_passa_nome')} | COREN: ${val('r_passa_coren')} | ${val('r_passa_hora')}
-Recebe plantão: ${val('r_recebe_nome')} | COREN: ${val('r_recebe_coren')} | ${val('r_recebe_hora')}
-════════════════════════════════════════
-Escalas: Braden (Bergstrom 1987) · Glasgow (Teasdale 1974)
-Morse — validação brasileira Urbanetto et al. 2013
-COFEN nº 429/2012 · RDC ANVISA nº 36/2013 · JCI IPSG 06`;
-}
-
-// ── MODAL ──────────────────────────────────────────────
-function openModal() {
-  const email = val('emailDestino');
-  if (!email) { showToast('Informe o e-mail destinatário.', 'error'); return; }
-  document.getElementById('summaryPreview').textContent = buildSummary();
-  document.getElementById('modalOverlay').classList.add('open');
-}
-function closeModal() { document.getElementById('modalOverlay').classList.remove('open'); }
-
-// ── ENVIO EMAIL ────────────────────────────────────────
-function buildHtmlEmail() {
-  const alTipo = radio('alergia');
-  const alDesc = alTipo.includes('CONFIRMADAS') ? val('b_alergias') : '';
-  const alergia = alTipo + (alDesc ? ': ' + alDesc : '');
-
-  const sec = (cor, letra, nome, conteudo) => `
-    <table width="100%" cellpadding="0" cellspacing="0" style="margin-bottom:18px;border-radius:10px;overflow:hidden;border:1px solid #e2e8f0">
-      <tr><td style="background:${cor};padding:12px 18px">
-        <span style="font-size:1.2rem;font-weight:700;color:#fff">${letra} — ${nome}</span>
-      </td></tr>
-      <tr><td style="padding:16px 18px;background:#fff;font-family:Arial,sans-serif;font-size:14px;color:#1a1a2e;line-height:1.8">
-        ${conteudo}
-      </td></tr>
-    </table>`;
-
-  const row = (label, value) => `<tr>
-    <td style="font-weight:700;color:#555;width:38%;padding:4px 8px 4px 0;vertical-align:top">${label}</td>
-    <td style="padding:4px 0;vertical-align:top">${value || '—'}</td>
-  </tr>`;
-
-  const badge = (cor, texto) => `<span style="background:${cor};color:#fff;padding:3px 10px;border-radius:12px;font-size:12px;font-weight:700">${texto}</span>`;
-
-  // Sinais vitais
-  const sv = `<table width="100%" cellpadding="4" cellspacing="0" style="border-collapse:collapse;font-size:13px">
-    <tr style="background:#FFF3CD">
-      <th style="padding:6px;border:1px solid #ddd;color:#7B5C00"></th>
-      <th style="padding:6px;border:1px solid #ddd;color:#7B5C00">PA</th>
-      <th style="padding:6px;border:1px solid #ddd;color:#7B5C00">FC</th>
-      <th style="padding:6px;border:1px solid #ddd;color:#7B5C00">FR</th>
-      <th style="padding:6px;border:1px solid #ddd;color:#7B5C00">Temp</th>
-      <th style="padding:6px;border:1px solid #ddd;color:#7B5C00">SpO₂</th>
-    </tr>
-    <tr>
-      <td style="padding:6px;border:1px solid #ddd;font-weight:700;color:#555">Atual</td>
-      <td style="padding:6px;border:1px solid #ddd">${val('sv_pa_atual')||'—'}</td>
-      <td style="padding:6px;border:1px solid #ddd">${val('sv_fc_atual')||'—'}</td>
-      <td style="padding:6px;border:1px solid #ddd">${val('sv_fr_atual')||'—'}</td>
-      <td style="padding:6px;border:1px solid #ddd">${val('sv_t_atual')||'—'}</td>
-      <td style="padding:6px;border:1px solid #ddd">${val('sv_spo2_atual')||'—'}</td>
-    </tr>
-    <tr style="background:#F8FAFC">
-      <td style="padding:6px;border:1px solid #ddd;font-weight:700;color:#555">Habitual</td>
-      <td style="padding:6px;border:1px solid #ddd">${val('sv_pa_hab')||'—'}</td>
-      <td style="padding:6px;border:1px solid #ddd">${val('sv_fc_hab')||'—'}</td>
-      <td style="padding:6px;border:1px solid #ddd">${val('sv_fr_hab')||'—'}</td>
-      <td style="padding:6px;border:1px solid #ddd">${val('sv_t_hab')||'—'}</td>
-      <td style="padding:6px;border:1px solid #ddd">${val('sv_spo2_hab')||'—'}</td>
-    </tr>
-  </table>`;
-
-  // Dor badge
-  const dorCores = ['#1B6B3A','#2E7D32','#388E3C','#558B2F','#F9A825','#F57C00','#EF6C00','#E64A19','#C62828','#B71C1C','#6A0000'];
-  const dorLabel = ['Sem dor','Dor leve','Dor leve','Dor leve','Dor moderada','Dor moderada','Dor moderada','Dor intensa','Dor intensa','Dor intensa','Insuportável'];
-  const dorBadge = dorValue !== null ? badge(dorCores[dorValue], `${dorValue}/10 — ${dorLabel[dorValue]}`) : '—';
-
-  // AVPU badge
-  const avpuCores = {A:'#1B6B3A',V:'#F57C00',P:'#C62828',U:'#6A0000'};
-  const avpuLabels = {A:'A — Alert',V:'V — Voice',P:'P — Pain',U:'U — Unresponsive'};
-  const avpuBadge = avpuValue ? badge(avpuCores[avpuValue], avpuLabels[avpuValue]) : '—';
-
-  // Glasgow
-  const gw = getGlasgow();
-  const gwCor = gw.includes('Leve') ? '#1B6B3A' : gw.includes('Moderado') ? '#F57C00' : gw.includes('Grave') ? '#C62828' : gw.includes('Morte') ? '#6A0000' : '#555';
-  const gwBadge = gw !== 'Não avaliado' ? badge(gwCor, gw) : '—';
-
-  // Braden
-  const br = getBraden();
-  const brCor = br.includes('muito alto') ? '#6A0000' : br.includes('alto') ? '#C62828' : br.includes('moderado') ? '#F57C00' : br.includes('baixo') ? '#2E7D32' : br.includes('Sem') ? '#1B6B3A' : '#555';
-  const brBadge = br !== 'Não avaliado' ? badge(brCor, `Braden: ${br}`) : '—';
-
-  // Morse
-  const mo = getMorse();
-  const moCor = mo.includes('alto') ? '#C62828' : '#1B6B3A';
-  const moBadge = mo !== 'Não avaliado' ? badge(moCor, `Morse: ${mo}`) : '—';
-
-  // Pendências
-  const pendHtml = pendencias.map((label,i) => {
-    const cb = document.getElementById(`pend_${i}`);
-    const h  = document.getElementById(`pend_hora_${i}`);
-    if (cb && cb.checked) return `<span style="display:inline-block;background:#F8D7DA;color:#721C24;padding:3px 10px;border-radius:8px;font-size:12px;font-weight:600;margin:2px">☑ ${label}${h&&h.value?' — até '+h.value:''}</span>`;
-    return null;
-  }).filter(Boolean).join(' ') || '<span style="color:#888">Nenhuma pendência marcada</span>';
-
-  const paciente = val('s_nome') || 'Paciente';
-  const dataF    = val('s_data') ? new Date(val('s_data')).toLocaleDateString('pt-BR') : '—';
-
-  return `<!DOCTYPE html><html><body style="margin:0;padding:0;background:#F0F4F8;font-family:Arial,sans-serif">
-  <table width="100%" cellpadding="0" cellspacing="0" style="background:#F0F4F8;padding:20px 0">
-  <tr><td align="center">
-  <table width="620" cellpadding="0" cellspacing="0" style="max-width:620px;width:100%">
-
-    <!-- Header -->
-    <tr><td style="background:linear-gradient(135deg,#1A3A5C,#2E6DA4);border-radius:12px 12px 0 0;padding:24px;text-align:center">
-      <div style="font-size:22px;font-weight:700;color:#fff">🏥 Passagem de Plantão — SBAR</div>
-      <div style="font-size:13px;color:rgba(255,255,255,.7);margin-top:4px;font-style:italic">Situation · Background · Assessment · Recommendation</div>
-      <div style="margin-top:10px;font-size:13px;color:#A8C8E8">
-        ${paciente} &nbsp;|&nbsp; ${dataF} &nbsp;|&nbsp; Turno: ${radio('turno')||'—'}
-      </div>
-    </td></tr>
-
-    <!-- Body -->
-    <tr><td style="background:#fff;padding:20px;border-radius:0 0 12px 12px">
-
-      ${sec('#2E6DA4','S','SITUAÇÃO', `<table width="100%" cellpadding="0" cellspacing="0">
-        ${row('Paciente', val('s_nome'))}
-        ${row('Prontuário', val('s_prontuario'))}
-        ${row('Leito / Setor', val('s_leito'))}
-        ${row('Médico assistente', val('s_medico'))}
-        ${row('Convênio / SUS', val('s_convenio'))}
-        ${row('Diagnóstico principal', val('s_diag'))}
-        ${row('Motivo da internação', val('s_motivo'))}
-        ${row('Situação atual', val('s_situacao'))}
-        ${row('Isolamento', radio('isolamento'))}
-        ${row('Nº pacientes no turno', val('s_npac'))}
-      </table>`)}
-
-      ${sec('#1B6B3A','B','BACKGROUND', `<table width="100%" cellpadding="0" cellspacing="0">
-        ${row('Internação', val('b_internacao'))}
-        ${row('Cirurgia / Procedimento', val('b_cirurgia'))}
-        ${row('Antecedentes', val('b_antecedentes'))}
-        ${row('⚠ Alergias', `<strong style="color:#721C24">${alergia}</strong>`)}
-        ${row('Dispositivos', checks('dispositivos'))}
-        ${row('Dieta', radio('dieta'))}
-        ${row('Medicamentos', val('b_medicamentos') ? val('b_medicamentos').replace(/\n/g,'<br>') : '—')}
-      </table>`)}
-
-      ${sec('#7B5C00','A','AVALIAÇÃO', `
-        <div style="margin-bottom:14px"><strong>Sinais Vitais:</strong><br><br>${sv}</div>
-        <table width="100%" cellpadding="0" cellspacing="0">
-          ${row('Via aérea', radio('via_aerea'))}
-          ${row('FiO₂ / L/min', val('a_fio2'))}
-          ${row('SpO₂ alvo', val('a_spo2_alvo'))}
-          ${row('Modo ventilatório', val('a_modo_vent'))}
-          ${row('Diurese', val('bh_diurese') ? val('bh_diurese')+' mL' : '—')}
-          ${row('Ingesta total', val('bh_ingesta') ? val('bh_ingesta')+' mL' : '—')}
-          ${row('Perdas', val('bh_perdas') ? val('bh_perdas')+' mL' : '—')}
-          ${row('Balanço hídrico', val('bh_resultado'))}
-          ${row('Aspecto da urina', radio('aspecto_urina'))}
-          ${row('Escala de Dor', dorBadge)}
-          ${row('AVPU', avpuBadge)}
-          ${row('Glasgow', gwBadge)}
-          ${row('Braden (LPP)', brBadge)}
-          ${row('Morse (Queda)', moBadge)}
-          ${row('Exames laboratoriais', val('a_exames_lab') ? val('a_exames_lab').replace(/\n/g,'<br>') : '—')}
-          ${row('Exames de imagem', val('a_exames_img') ? val('a_exames_img').replace(/\n/g,'<br>') : '—')}
-          ${row('Avaliação de enfermagem', val('a_avaliacao') ? val('a_avaliacao').replace(/\n/g,'<br>') : '—')}
-        </table>`)}
-
-      ${sec('#721C24','R','RECOMENDAÇÃO', `<table width="100%" cellpadding="0" cellspacing="0">
-        ${row('Conduta solicitada', val('r_conduta') ? val('r_conduta').replace(/\n/g,'<br>') : '—')}
-        ${row('Cuidados prioritários', val('r_cuidados') ? val('r_cuidados').replace(/\n/g,'<br>') : '—')}
-        ${row('⚠ Pendências', pendHtml)}
-        ${row('Outros alertas', val('r_outros_alertas'))}
-        ${row('Previsão de alta/transf.', val('r_alta'))}
-      </table>`)}
-
-      <!-- Assinaturas -->
-      <table width="100%" cellpadding="0" cellspacing="0" style="margin-top:8px;border:1px solid #e2e8f0;border-radius:10px;overflow:hidden">
-        <tr style="background:#D6E4F0">
-          <td width="50%" style="padding:10px 14px;font-weight:700;font-size:13px;color:#1A3A5C;border-right:1px solid #e2e8f0">✍️ Passa o plantão</td>
-          <td width="50%" style="padding:10px 14px;font-weight:700;font-size:13px;color:#1A3A5C">✍️ Recebe o plantão</td>
-        </tr>
-        <tr style="background:#fff">
-          <td style="padding:12px 14px;font-size:13px;border-right:1px solid #e2e8f0;vertical-align:top">
-            <strong>${val('r_passa_nome')||'—'}</strong><br>
-            COREN: ${val('r_passa_coren')||'—'}<br>
-            Horário: ${val('r_passa_hora')||'—'}
-          </td>
-          <td style="padding:12px 14px;font-size:13px;vertical-align:top">
-            <strong>${val('r_recebe_nome')||'—'}</strong><br>
-            COREN: ${val('r_recebe_coren')||'—'}<br>
-            Horário: ${val('r_recebe_hora')||'—'}
-          </td>
-        </tr>
-      </table>
-
-      <!-- Rodapé -->
-      <div style="margin-top:18px;padding:12px;background:#F8FAFC;border-radius:8px;font-size:11px;color:#888;text-align:center;line-height:1.6">
-        Braden (Bergstrom 1987) · Glasgow (Teasdale 1974) · Morse — Urbanetto et al. 2013<br>
-        COFEN nº 429/2012 · RDC ANVISA nº 36/2013 · JCI IPSG 06
-      </div>
-
-    </td></tr>
-  </table>
-  </td></tr></table>
-  </body></html>`;
-}
-
-function sendEmail() {
-  const email    = val('emailDestino');
-  const paciente = val('s_nome') || 'Paciente';
-  const dataF    = val('s_data') ? new Date(val('s_data')).toLocaleDateString('pt-BR') : new Date().toLocaleDateString('pt-BR');
-
-  const btnEnviar = document.querySelector('.modal-btns .btn-success');
-  btnEnviar.textContent = '⏳ Enviando...';
-  btnEnviar.disabled = true;
-
-  const htmlContent = buildHtmlEmail();
-
-  emailjs.send(EMAILJS_SERVICE_ID, EMAILJS_TEMPLATE_ID, {
-    to_email:     email,
-    subject:      'Passagem de Plantão SBAR — ' + paciente + ' — ' + dataF,
-    html_message: htmlContent,
-    from_name:    'Plantão SBAR',
-    reply_to:     email,
-  }).then(() => {
-    closeModal();
-    btnEnviar.textContent = '✅ Confirmar e Enviar';
-    btnEnviar.disabled = false;
-    showToast('✅ E-mail enviado com sucesso!', 'success');
-  }).catch(err => {
-    console.error('EmailJS error:', JSON.stringify(err));
-    btnEnviar.textContent = '✅ Confirmar e Enviar';
-    btnEnviar.disabled = false;
-    // Fallback: abre cliente de email
-    const subject = encodeURIComponent('Passagem de Plantão SBAR — ' + paciente + ' — ' + dataF);
-    const body = encodeURIComponent(buildSummary());
-    window.open('mailto:' + email + '?subject=' + subject + '&body=' + body);
-    showToast('⚠️ Abrindo cliente de e-mail como alternativa...', 'error');
-  });
-}
-
-// ── IMPRESSÃO ──────────────────────────────────────────
-function printForm() {
-  // Mostra todas as seções antes de imprimir
-  document.querySelectorAll('.section-card').forEach(c => c.classList.add('active'));
-  setTimeout(() => {
-    window.print();
-    // Restaura apenas a seção atual após imprimir
-    setTimeout(() => {
-      document.querySelectorAll('.section-card').forEach(c => c.classList.remove('active'));
-      document.getElementById('step-' + currentStep).classList.add('active');
-    }, 1000);
-  }, 300);
-}
-
-// ── TOAST ──────────────────────────────────────────────
-function showToast(msg, type='success') {
-  const t = document.getElementById('toast');
-  t.textContent = msg;
-  t.className = `toast ${type} show`;
-  setTimeout(() => t.classList.remove('show'), 3500);
-}
-
-// ── PERSISTÊNCIA DE DADOS (localStorage) ──────────────
-function saveData() {
-  const data = {};
-  document.querySelectorAll('input[type=text],input[type=number],input[type=date],input[type=time],input[type=email],textarea').forEach(el => {
-    if (el.id) data[el.id] = el.value;
-  });
-  document.querySelectorAll('input[type=radio]:checked, input[type=checkbox]:checked').forEach(el => {
-    data['_check_' + el.name + '_' + el.value] = true;
-  });
-  if (dorValue !== null) data['_dor'] = dorValue;
-  if (avpuValue) data['_avpu'] = avpuValue;
-  try { localStorage.setItem('sbar_data', JSON.stringify(data)); } catch(e) {}
-}
-
-function loadData() {
-  try {
-    const data = JSON.parse(localStorage.getItem('sbar_data') || '{}');
-    Object.keys(data).forEach(key => {
-      if (key.startsWith('_check_')) {
-        const parts = key.replace('_check_','').split('_');
-        const name = parts[0];
-        const value = parts.slice(1).join('_');
-        const el = document.querySelector(`input[name="${name}"][value="${value}"]`);
-        if (el) el.checked = true;
-      } else if (key === '_dor') {
-        selectDor(data[key]);
-      } else if (key === '_avpu') {
-        const card = document.querySelector(`.avpu-card[data-val="${data[key]}"]`);
-        if (card) selectAVPU(card);
-      } else {
-        const el = document.getElementById(key);
-        if (el) el.value = data[key];
-      }
-    });
-    calcGlasgow(); calcBraden(); calcMorse(); calcBH();
-  } catch(e) {}
-}
-
-// Botão limpar dados
-function clearData() {
-  if (confirm('Deseja limpar todos os dados e iniciar nova passagem?')) {
-    try { localStorage.removeItem('sbar_data'); } catch(e) {}
-    location.reload();
-  }
-}
-
-// Auto-salva a cada mudança
-document.addEventListener('change', saveData);
-document.addEventListener('input', saveData);
-
-// ── INIT ───────────────────────────────────────────────
-buildBraden();
-buildMorse();
-buildPendencias();
-
-// Preenche data/hora atual
-const now = new Date();
-document.getElementById('s_data').value = now.toISOString().split('T')[0];
-document.getElementById('s_hora').value = now.toTimeString().slice(0,5);
-
-// Carrega dados salvos
-loadData();
-
-// Listener do botão limpar
-const clearFormBtn = document.getElementById('clearFormBtn');
-if (clearFormBtn) {
-  clearFormBtn.addEventListener('click', clearData);
-}
-
-// Fechar modal ao clicar fora
-document.getElementById('modalOverlay').addEventListener('click', function(e) {
-  if (e.target === this) closeModal();
-});
-
-</script>
+    <script>
+        // Função para salvar dados no localStorage
+        function saveData() {
+            const formData = {
+                nomePaciente: document.getElementById('nomePaciente').value,
+                idade: document.getElementById('idade').value,
+                leito: document.getElementById('leito').value,
+                diagnostico: document.getElementById('diagnostico').value,
+                historiaClinica: document.getElementById('historiaClinica').value,
+                medicacoes: document.getElementById('medicacoes').value,
+                sinaisVitais: document.getElementById('sinaisVitais').value,
+                avpu: document.querySelector('.avpu-card.selected')?.dataset.avpu || '',
+                examesLab: document.getElementById('examesLab').value,
+                observacoes: document.getElementById('observacoes').value,
+                cuidados: document.getElementById('cuidados').value,
+                pendencias: document.getElementById('pendencias').value,
+                plano: document.getElementById('plano').value
+            };
+            localStorage.setItem('sbarFormData', JSON.stringify(formData));
+        }
+
+        // Função para carregar dados do localStorage
+        function loadData() {
+            const savedData = localStorage.getItem('sbarFormData');
+            if (savedData) {
+                const formData = JSON.parse(savedData);
+                Object.keys(formData).forEach(key => {
+                    if (key === 'avpu' && formData[key]) {
+                        document.querySelector(`.avpu-card[data-avpu="${formData[key]}"]`)?.classList.add('selected');
+                    } else {
+                        const element = document.getElementById(key);
+                        if (element) {
+                            element.value = formData[key];
+                        }
+                    }
+                });
+            }
+        }
+
+        // Função para limpar todos os dados
+        function clearData() {
+            if (confirm('Tem certeza que deseja limpar todos os dados?')) {
+                localStorage.removeItem('sbarFormData');
+                document.querySelectorAll('input, textarea').forEach(el => el.value = '');
+                document.querySelectorAll('.avpu-card').forEach(card => card.classList.remove('selected'));
+            }
+        }
+
+        // Event listeners para AVPU
+        document.querySelectorAll('.avpu-card').forEach(card => {
+            card.addEventListener('click', function() {
+                document.querySelectorAll('.avpu-card').forEach(c => c.classList.remove('selected'));
+                this.classList.add('selected');
+                saveData();
+            });
+        });
+
+        // Event listeners para salvar automaticamente
+        document.querySelectorAll('input, textarea').forEach(element => {
+            element.addEventListener('input', saveData);
+            element.addEventListener('change', saveData);
+        });
+
+        // Event listener para o botão de limpar
+        document.getElementById('clearFormBtn').addEventListener('click', clearData);
+
+        // Carregar dados ao iniciar
+        loadData();
+    </script>
 </body>
 </html>
