@@ -3,319 +3,530 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Passagem de Plantão - SBAR</title>
+    <title>Passagem de Plantão SBAR</title>
     <style>
         * {
             margin: 0;
             padding: 0;
             box-sizing: border-box;
         }
-
+        
         body {
-            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            font-family: 'Arial', sans-serif;
             background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
             min-height: 100vh;
             padding: 20px;
         }
-
+        
         .container {
-            max-width: 800px;
+            max-width: 900px;
             margin: 0 auto;
             background: white;
-            border-radius: 15px;
-            box-shadow: 0 10px 40px rgba(0,0,0,0.2);
-            padding: 30px;
+            border-radius: 20px;
+            padding: 40px;
+            box-shadow: 0 20px 60px rgba(0,0,0,0.3);
         }
-
+        
         h1 {
-            color: #333;
             text-align: center;
-            margin-bottom: 30px;
-            font-size: 2em;
+            color: #333;
+            margin-bottom: 10px;
+            font-size: 2.5em;
         }
-
+        
+        .subtitle {
+            text-align: center;
+            color: #666;
+            margin-bottom: 40px;
+            font-size: 1.1em;
+        }
+        
         .section {
-            margin-bottom: 25px;
-            padding: 20px;
+            margin-bottom: 30px;
+            padding: 25px;
             background: #f8f9fa;
-            border-radius: 10px;
-            border-left: 4px solid #667eea;
+            border-radius: 15px;
+            border-left: 5px solid #667eea;
         }
-
+        
         .section-title {
+            font-size: 1.5em;
             color: #667eea;
-            font-size: 1.3em;
-            margin-bottom: 15px;
-            font-weight: 600;
+            margin-bottom: 20px;
+            font-weight: bold;
         }
-
+        
+        .form-row {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 20px;
+            margin-bottom: 20px;
+        }
+        
         .form-group {
-            margin-bottom: 15px;
+            margin-bottom: 20px;
         }
-
+        
         label {
             display: block;
-            margin-bottom: 5px;
-            color: #555;
-            font-weight: 500;
+            margin-bottom: 8px;
+            color: #333;
+            font-weight: 600;
         }
-
-        input, textarea, select {
+        
+        input[type="text"],
+        input[type="number"],
+        input[type="date"],
+        input[type="time"],
+        textarea,
+        select {
             width: 100%;
             padding: 12px;
-            border: 2px solid #e0e0e0;
+            border: 2px solid #ddd;
             border-radius: 8px;
-            font-size: 14px;
+            font-size: 16px;
             transition: border-color 0.3s;
         }
-
-        input:focus, textarea:focus, select:focus {
+        
+        input:focus,
+        textarea:focus,
+        select:focus {
             outline: none;
             border-color: #667eea;
         }
-
+        
         textarea {
             min-height: 100px;
             resize: vertical;
+            font-family: 'Arial', sans-serif;
         }
-
-        .avpu-container {
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
-            gap: 10px;
+        
+        .checkbox-group,
+        .radio-group {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 15px;
             margin-top: 10px;
         }
-
+        
+        .checkbox-item,
+        .radio-item {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+        
+        .checkbox-item input,
+        .radio-item input {
+            width: auto;
+            cursor: pointer;
+        }
+        
+        .avpu-container {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 15px;
+            margin-top: 15px;
+        }
+        
         .avpu-card {
             background: white;
-            border: 2px solid #e0e0e0;
-            border-radius: 8px;
-            padding: 15px;
+            border: 3px solid #ddd;
+            border-radius: 12px;
+            padding: 20px;
             text-align: center;
             cursor: pointer;
             transition: all 0.3s;
         }
-
+        
         .avpu-card:hover {
-            transform: translateY(-2px);
-            box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+            transform: translateY(-5px);
+            box-shadow: 0 5px 15px rgba(0,0,0,0.2);
         }
-
+        
         .avpu-card.selected {
             background: #667eea;
-            color: white;
             border-color: #667eea;
+            color: white;
         }
-
-        .avpu-title {
-            font-weight: 600;
-            font-size: 1.1em;
+        
+        .avpu-letter {
+            font-size: 2em;
+            font-weight: bold;
             margin-bottom: 5px;
         }
-
+        
         .avpu-desc {
-            font-size: 0.85em;
-            opacity: 0.8;
+            font-size: 0.9em;
         }
-
-        .button-group {
+        
+        .button-container {
             display: flex;
             gap: 15px;
             margin-top: 30px;
         }
-
+        
         button {
             flex: 1;
-            padding: 15px;
+            padding: 15px 30px;
+            font-size: 1.1em;
             border: none;
-            border-radius: 8px;
-            font-size: 16px;
-            font-weight: 600;
+            border-radius: 10px;
             cursor: pointer;
             transition: all 0.3s;
+            font-weight: 600;
         }
-
-        .btn-primary {
+        
+        .btn-print {
             background: #667eea;
             color: white;
         }
-
-        .btn-primary:hover {
+        
+        .btn-print:hover {
             background: #5568d3;
             transform: translateY(-2px);
             box-shadow: 0 5px 15px rgba(102, 126, 234, 0.4);
         }
-
-        .btn-secondary {
+        
+        .btn-clear {
             background: #6c757d;
             color: white;
         }
-
-        .btn-secondary:hover {
-            background: #5a6268;
+        
+        .btn-clear:hover {
+            background: #545b62;
             transform: translateY(-2px);
             box-shadow: 0 5px 15px rgba(108, 117, 125, 0.4);
         }
-
+        
         @media print {
             body {
                 background: white;
-                padding: 0;
             }
+            
             .container {
                 box-shadow: none;
                 padding: 20px;
             }
+            
             button {
                 display: none;
+            }
+        }
+        
+        @media (max-width: 768px) {
+            .form-row {
+                grid-template-columns: 1fr;
+            }
+            
+            .avpu-container {
+                grid-template-columns: 1fr 1fr;
+            }
+            
+            .container {
+                padding: 20px;
             }
         }
     </style>
 </head>
 <body>
     <div class="container">
-        <h1>📋 Passagem de Plantão - SBAR</h1>
-
+        <h1>🏥 Passagem de Plantão</h1>
+        <div class="subtitle">Método SBAR - Comunicação Segura em Saúde</div>
+        
+        <!-- SITUAÇÃO -->
         <div class="section">
-            <div class="section-title">S - Situação</div>
-            <div class="form-group">
-                <label>Nome do Paciente:</label>
-                <input type="text" id="nomePaciente" placeholder="Digite o nome completo">
+            <div class="section-title">S - SITUAÇÃO</div>
+            
+            <div class="form-row">
+                <div class="form-group">
+                    <label>Nome do Paciente:</label>
+                    <input type="text" id="paciente" name="paciente">
+                </div>
+                
+                <div class="form-group">
+                    <label>Idade:</label>
+                    <input type="number" id="idade" name="idade">
+                </div>
             </div>
-            <div class="form-group">
-                <label>Idade:</label>
-                <input type="number" id="idade" placeholder="Digite a idade">
+            
+            <div class="form-row">
+                <div class="form-group">
+                    <label>Leito:</label>
+                    <input type="text" id="leito" name="leito">
+                </div>
+                
+                <div class="form-group">
+                    <label>Data:</label>
+                    <input type="date" id="data" name="data">
+                </div>
             </div>
+            
             <div class="form-group">
-                <label>Leito:</label>
-                <input type="text" id="leito" placeholder="Ex: 101-A">
+                <label>Diagnóstico Principal:</label>
+                <textarea id="diagnostico" name="diagnostico"></textarea>
             </div>
+            
             <div class="form-group">
-                <label>Diagnóstico:</label>
-                <textarea id="diagnostico" placeholder="Descreva o diagnóstico principal"></textarea>
+                <label>Motivo da Internação:</label>
+                <textarea id="motivo" name="motivo"></textarea>
             </div>
         </div>
-
+        
+        <!-- BACKGROUND -->
         <div class="section">
-            <div class="section-title">B - Background (Histórico)</div>
+            <div class="section-title">B - BACKGROUND (Histórico)</div>
+            
             <div class="form-group">
                 <label>História Clínica Relevante:</label>
-                <textarea id="historiaClinica" placeholder="Comorbidades, cirurgias prévias, alergias..."></textarea>
+                <textarea id="historia" name="historia"></textarea>
             </div>
+            
             <div class="form-group">
-                <label>Medicações em Uso:</label>
-                <textarea id="medicacoes" placeholder="Liste as medicações atuais"></textarea>
-            </div>
-        </div>
-
-        <div class="section">
-            <div class="section-title">A - Assessment (Avaliação)</div>
-            <div class="form-group">
-                <label>Sinais Vitais:</label>
-                <input type="text" id="sinaisVitais" placeholder="PA, FC, FR, Temp, SpO2">
-            </div>
-            <div class="form-group">
-                <label>Nível de Consciência (AVPU):</label>
-                <div class="avpu-container">
-                    <div class="avpu-card" data-avpu="A">
-                        <div class="avpu-title">A - Alerta</div>
-                        <div class="avpu-desc">Consciente e orientado</div>
+                <label>Comorbidades:</label>
+                <div class="checkbox-group">
+                    <div class="checkbox-item">
+                        <input type="checkbox" id="dm" name="comorbidade" value="Diabetes">
+                        <label for="dm">Diabetes</label>
                     </div>
-                    <div class="avpu-card" data-avpu="V">
-                        <div class="avpu-title">V - Verbal</div>
-                        <div class="avpu-desc">Responde a estímulos verbais</div>
+                    <div class="checkbox-item">
+                        <input type="checkbox" id="has" name="comorbidade" value="HAS">
+                        <label for="has">HAS</label>
                     </div>
-                    <div class="avpu-card" data-avpu="P">
-                        <div class="avpu-title">P - Dor</div>
-                        <div class="avpu-desc">Responde a estímulos dolorosos</div>
+                    <div class="checkbox-item">
+                        <input type="checkbox" id="iam" name="comorbidade" value="IAM">
+                        <label for="iam">IAM</label>
                     </div>
-                    <div class="avpu-card" data-avpu="U">
-                        <div class="avpu-title">U - Inconsciente</div>
-                        <div class="avpu-desc">Sem resposta</div>
+                    <div class="checkbox-item">
+                        <input type="checkbox" id="avc" name="comorbidade" value="AVC">
+                        <label for="avc">AVC</label>
+                    </div>
+                    <div class="checkbox-item">
+                        <input type="checkbox" id="dpoc" name="comorbidade" value="DPOC">
+                        <label for="dpoc">DPOC</label>
                     </div>
                 </div>
             </div>
+            
             <div class="form-group">
-                <label>Exames Laboratoriais Relevantes:</label>
-                <textarea id="examesLab" placeholder="Resultados importantes de exames"></textarea>
+                <label>Alergias:</label>
+                <input type="text" id="alergias" name="alergias" placeholder="Medicamentos, alimentos, etc.">
             </div>
+            
             <div class="form-group">
-                <label>Observações Clínicas:</label>
-                <textarea id="observacoes" placeholder="Estado geral, queixas, intercorrências..."></textarea>
+                <label>Medicações em Uso:</label>
+                <textarea id="medicacoes" name="medicacoes"></textarea>
             </div>
         </div>
-
+        
+        <!-- ASSESSMENT -->
         <div class="section">
-            <div class="section-title">R - Recommendation (Recomendação)</div>
+            <div class="section-title">A - ASSESSMENT (Avaliação)</div>
+            
+            <div class="form-row">
+                <div class="form-group">
+                    <label>Sinais Vitais:</label>
+                    <input type="text" id="sinais" name="sinais" placeholder="PA, FC, FR, T°, SpO2">
+                </div>
+                
+                <div class="form-group">
+                    <label>Glicemia:</label>
+                    <input type="text" id="glicemia" name="glicemia">
+                </div>
+            </div>
+            
+            <div class="form-group">
+                <label>Nível de Consciência (AVPU):</label>
+                <div class="avpu-container">
+                    <div class="avpu-card" data-val="A">
+                        <div class="avpu-letter">A</div>
+                        <div class="avpu-desc">Alerta</div>
+                    </div>
+                    <div class="avpu-card" data-val="V">
+                        <div class="avpu-letter">V</div>
+                        <div class="avpu-desc">Verbal</div>
+                    </div>
+                    <div class="avpu-card" data-val="P">
+                        <div class="avpu-letter">P</div>
+                        <div class="avpu-desc">Dor</div>
+                    </div>
+                    <div class="avpu-card" data-val="U">
+                        <div class="avpu-letter">U</div>
+                        <div class="avpu-desc">Inconsciente</div>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="form-group">
+                <label>Via de Acesso:</label>
+                <div class="radio-group">
+                    <div class="radio-item">
+                        <input type="radio" id="periférico" name="acesso" value="Periférico">
+                        <label for="periférico">Periférico</label>
+                    </div>
+                    <div class="radio-item">
+                        <input type="radio" id="central" name="acesso" value="Central">
+                        <label for="central">Central</label>
+                    </div>
+                    <div class="radio-item">
+                        <input type="radio" id="nenhum" name="acesso" value="Nenhum">
+                        <label for="nenhum">Nenhum</label>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="form-group">
+                <label>Exames Laboratoriais Recentes:</label>
+                <textarea id="exames" name="exames"></textarea>
+            </div>
+            
+            <div class="form-group">
+                <label>Estado Geral/Observações:</label>
+                <textarea id="observacoes" name="observacoes"></textarea>
+            </div>
+        </div>
+        
+        <!-- RECOMMENDATION -->
+        <div class="section">
+            <div class="section-title">R - RECOMMENDATION (Recomendação)</div>
+            
             <div class="form-group">
                 <label>Cuidados Necessários:</label>
-                <textarea id="cuidados" placeholder="Procedimentos, monitorização, precauções..."></textarea>
+                <textarea id="cuidados" name="cuidados"></textarea>
             </div>
+            
             <div class="form-group">
-                <label>Pendências:</label>
-                <textarea id="pendencias" placeholder="Exames pendentes, condutas a realizar..."></textarea>
+                <label>Precauções:</label>
+                <div class="checkbox-group">
+                    <div class="checkbox-item">
+                        <input type="checkbox" id="contato" name="precaucao" value="Contato">
+                        <label for="contato">Contato</label>
+                    </div>
+                    <div class="checkbox-item">
+                        <input type="checkbox" id="gotícula" name="precaucao" value="Gotícula">
+                        <label for="gotícula">Gotícula</label>
+                    </div>
+                    <div class="checkbox-item">
+                        <input type="checkbox" id="aerossol" name="precaucao" value="Aerossol">
+                        <label for="aerossol">Aerossol</label>
+                    </div>
+                </div>
             </div>
+            
             <div class="form-group">
-                <label>Plano de Cuidados:</label>
-                <textarea id="plano" placeholder="Orientações para o próximo plantão"></textarea>
+                <label>Pendências/Ações Necessárias:</label>
+                <textarea id="pendencias" name="pendencias"></textarea>
+            </div>
+            
+            <div class="form-group">
+                <label>Plano de Cuidados para o Próximo Plantão:</label>
+                <textarea id="plano" name="plano"></textarea>
             </div>
         </div>
-
-        <div class="button-group">
-            <button class="btn-primary" onclick="window.print()">🖨️ Imprimir</button>
-            <button class="btn-secondary" id="clearFormBtn">🔄 Limpar e Nova Passagem</button>
+        
+        <div class="button-container">
+            <button class="btn-print" onclick="window.print()">🖨️ Imprimir</button>
+            <button class="btn-clear" onclick="clearData()">🔄 Limpar e Nova Passagem</button>
         </div>
     </div>
 
     <script>
-        // Função para salvar dados no localStorage
+        // Salvar dados automaticamente
         function saveData() {
-            const formData = {
-                nomePaciente: document.getElementById('nomePaciente').value,
-                idade: document.getElementById('idade').value,
-                leito: document.getElementById('leito').value,
-                diagnostico: document.getElementById('diagnostico').value,
-                historiaClinica: document.getElementById('historiaClinica').value,
-                medicacoes: document.getElementById('medicacoes').value,
-                sinaisVitais: document.getElementById('sinaisVitais').value,
-                avpu: document.querySelector('.avpu-card.selected')?.dataset.avpu || '',
-                examesLab: document.getElementById('examesLab').value,
-                observacoes: document.getElementById('observacoes').value,
-                cuidados: document.getElementById('cuidados').value,
-                pendencias: document.getElementById('pendencias').value,
-                plano: document.getElementById('plano').value
-            };
-            localStorage.setItem('sbarFormData', JSON.stringify(formData));
+            const data = {};
+            
+            // Inputs e textareas
+            document.querySelectorAll('input[type="text"], input[type="number"], input[type="date"], input[type="time"], textarea').forEach(el => {
+                data[el.id || el.name] = el.value;
+            });
+            
+            // Checkboxes
+            const checkboxes = {};
+            document.querySelectorAll('input[type="checkbox"]').forEach(cb => {
+                if (!checkboxes[cb.name]) checkboxes[cb.name] = [];
+                if (cb.checked) checkboxes[cb.name].push(cb.value);
+            });
+            data.checkboxes = checkboxes;
+            
+            // Radio buttons
+            document.querySelectorAll('input[type="radio"]:checked').forEach(rb => {
+                data[rb.name] = rb.value;
+            });
+            
+            // AVPU
+            const avpuSelected = document.querySelector('.avpu-card.selected');
+            if (avpuSelected) {
+                data.avpu = avpuSelected.dataset.val;
+            }
+            
+            localStorage.setItem('plantaoData', JSON.stringify(data));
         }
-
-        // Função para carregar dados do localStorage
+        
+        // Carregar dados salvos
         function loadData() {
-            const savedData = localStorage.getItem('sbarFormData');
-            if (savedData) {
-                const formData = JSON.parse(savedData);
-                Object.keys(formData).forEach(key => {
-                    if (key === 'avpu' && formData[key]) {
-                        document.querySelector(`.avpu-card[data-avpu="${formData[key]}"]`)?.classList.add('selected');
-                    } else {
-                        const element = document.getElementById(key);
-                        if (element) {
-                            element.value = formData[key];
-                        }
+            const saved = localStorage.getItem('plantaoData');
+            if (!saved) return;
+            
+            const data = JSON.parse(saved);
+            
+            // Inputs e textareas
+            Object.keys(data).forEach(key => {
+                const el = document.getElementById(key) || document.querySelector(`[name="${key}"]`);
+                if (el && (el.tagName === 'INPUT' || el.tagName === 'TEXTAREA') && el.type !== 'checkbox' && el.type !== 'radio') {
+                    el.value = data[key];
+                }
+            });
+            
+            // Checkboxes
+            if (data.checkboxes) {
+                Object.keys(data.checkboxes).forEach(name => {
+                    data.checkboxes[name].forEach(value => {
+                        const checkbox = document.querySelector(`input[name="${name}"][value="${value}"]`);
+                        if (checkbox) checkbox.checked = true;
+                    });
+                });
+            }
+            
+            // Radio buttons
+            Object.keys(data).forEach(key => {
+                if (key !== 'checkboxes' && key !== 'avpu') {
+                    const radio = document.querySelector(`input[name="${key}"][value="${data[key]}"]`);
+                    if (radio && radio.type === 'radio') {
+                        radio.checked = true;
                     }
+                }
+            });
+            
+            // AVPU
+            if (data.avpu) {
+                const avpuCard = document.querySelector(`.avpu-card[data-val="${data.avpu}"]`);
+                if (avpuCard) avpuCard.classList.add('selected');
+            }
+        }
+        
+        // Limpar todos os dados
+        function clearData() {
+            if (confirm('Tem certeza que deseja limpar todos os dados?')) {
+                localStorage.removeItem('plantaoData');
+                document.querySelectorAll('input, textarea').forEach(el => {
+                    if (el.type === 'checkbox' || el.type === 'radio') {
+                        el.checked = false;
+                    } else {
+                        el.value = '';
+                    }
+                });
+                document.querySelectorAll('.avpu-card').forEach(card => {
+                    card.classList.remove('selected');
                 });
             }
         }
-
-        // Função para limpar todos os dados
-        function clearData() {
-            if (confirm('Tem certeza que deseja limpar todos os dados?')) {
-                localStorage.removeItem('sbarFormData');
-                document.querySelectorAll('input, textarea').forEach(el => el.value = '');
-                document.querySelectorAll('.avpu-card').forEach(card => card.classList.remove('selected'));
-            }
-        }
-
-        // Event listeners para AVPU
+        
+        // Event listeners
+        document.querySelectorAll('input, textarea').forEach(el => {
+            el.addEventListener('input', saveData);
+            el.addEventListener('change', saveData);
+        });
+        
         document.querySelectorAll('.avpu-card').forEach(card => {
             card.addEventListener('click', function() {
                 document.querySelectorAll('.avpu-card').forEach(c => c.classList.remove('selected'));
@@ -323,18 +534,12 @@
                 saveData();
             });
         });
-
-        // Event listeners para salvar automaticamente
-        document.querySelectorAll('input, textarea').forEach(element => {
-            element.addEventListener('input', saveData);
-            element.addEventListener('change', saveData);
-        });
-
-        // Event listener para o botão de limpar
-        document.getElementById('clearFormBtn').addEventListener('click', clearData);
-
-        // Carregar dados ao iniciar
+        
+        // Carregar ao iniciar
         loadData();
+        
+        // Definir data atual
+        document.getElementById('data').valueAsDate = new Date();
     </script>
 </body>
 </html>
