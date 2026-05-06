@@ -1865,12 +1865,12 @@ function loadData() {
         const parts = key.replace('_check_','').split('_');
         const name = parts[0];
         const value = parts.slice(1).join('_');
-        const el = document.querySelector('input[name=+name+][value=+value+]');
+        const el = document.querySelector(`input[name="${name}"][value="${value}"]`);
         if (el) el.checked = true;
       } else if (key === '_dor') {
         selectDor(data[key]);
       } else if (key === '_avpu') {
-        const card = document.querySelector('.avpu-card[data-val=+data[key]+]');
+        const card = document.querySelector(`.avpu-card[data-val="${data[key]}"]`);
         if (card) selectAVPU(card);
       } else {
         const el = document.getElementById(key);
