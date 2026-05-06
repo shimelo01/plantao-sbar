@@ -601,10 +601,26 @@ textarea.field-input { resize: vertical; min-height: 72px; }
 /* ── PRINT ── */
 @media print {
   body { background: #fff; }
-  .site-header, .step-tabs, .progress-bar-outer, .nav-btns, .modal-overlay, .toast, .step-counter { display: none !important; }
-  .section-card { display: block !important; box-shadow: none; border: 1px solid #ccc; margin-bottom: 20px; break-inside: avoid; }
+  .site-header, .step-tabs, .progress-bar-outer, .nav-btns, .modal-overlay, .toast, .step-counter, button { display: none !important; }
+  .section-card { display: block !important; box-shadow: none; border: 1px solid #ccc; margin-bottom: 24px; break-inside: avoid; page-break-inside: avoid; }
   .stepper-wrap { padding: 0; max-width: 100%; }
   .form-body { padding: 12px; }
+  .subsection { break-inside: avoid; page-break-inside: avoid; }
+  .field-input { border: none; border-bottom: 1px solid #ccc; border-radius: 0; background: transparent !important; padding: 2px 4px; }
+  .check-item, .radio-item, .avpu-card, .dor-btn { border: 1px solid #ccc !important; }
+  .check-item:has(input:checked), .radio-item:has(input:checked) { border: 2px solid #333 !important; font-weight: bold; }
+  .avpu-card.selected { border: 2px solid #333 !important; }
+  .dor-btn.selected { border: 2px solid #333 !important; font-weight: bold; }
+  .scale-total-box { display: flex !important; }
+  #glasgowTotal, #bradenTotal, #morseTotal { display: flex !important; }
+  #dorResult { display: block !important; }
+  .sv-table input { border-bottom: 1px solid #ccc; }
+  .section-header { -webkit-print-color-adjust: exact; print-color-adjust: exact; }
+  .subsection-title { -webkit-print-color-adjust: exact; print-color-adjust: exact; }
+  .dor-btn { -webkit-print-color-adjust: exact; print-color-adjust: exact; }
+  .risk-badge, .total-display { -webkit-print-color-adjust: exact; print-color-adjust: exact; }
+  .alergia-header { -webkit-print-color-adjust: exact; print-color-adjust: exact; }
+  .pend-item:has(input:checked) { -webkit-print-color-adjust: exact; print-color-adjust: exact; }
 }
 </style>
 </head>
@@ -1806,7 +1822,18 @@ function sendEmail() {
 }
 
 // ── IMPRESSÃO ──────────────────────────────────────────
-function printForm() { window.print(); }
+function printForm() {
+  // Mostra todas as seções antes de imprimir
+  document.querySelectorAll('.section-card').forEach(c => c.classList.add('active'));
+  setTimeout(() => {
+    window.print();
+    // Restaura apenas a seção atual após imprimir
+    setTimeout(() => {
+      document.querySelectorAll('.section-card').forEach(c => c.classList.remove('active'));
+      document.getElementById('step-' + currentStep).classList.add('active');
+    }, 1000);
+  }, 300);
+}
 
 // ── TOAST ──────────────────────────────────────────────
 function showToast(msg, type='success') {
